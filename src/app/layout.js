@@ -3,11 +3,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReactQueryProviders from "./hooks/useReactQuery";
-import { useParams } from "next/navigation";
 import Header from "./component/Header/Header";
 import { RecoilRoot } from "recoil";
 import { useSymbolStore } from "./hooks/stateManagement";
-import { useEffect } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,12 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export default function RootLayout({ children }) {
-  const params = useParams();
-  const { defaultSymbol, setDefaultSymbol } = useSymbolStore();
-
-  useEffect(() => {
-    setDefaultSymbol(params.symbol);
-  }, [params.symbol, setDefaultSymbol]);
+  const { defaultSymbol } = useSymbolStore();
 
   return (
     <html lang="en">

@@ -25,3 +25,17 @@ export const getBinanceHotCoins = async () => {
 
   return response.data
 }
+
+export const getBinanceListedCoins = async () => {
+  const url = `https://www.binance.com/bapi/margin/v1/public/isolated-margin/pair/listed`
+  const response = await axios.get(url)
+
+  return response.data
+}
+
+export const getBinanceDepth = async (symbol) => {
+  const url = `https://www.binance.com/api/v3/depth?symbol=${symbol}&limit=1000`
+  const response = await axios.get(url)
+
+  return response.data
+}

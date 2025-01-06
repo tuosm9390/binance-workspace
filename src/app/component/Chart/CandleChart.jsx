@@ -90,7 +90,7 @@ function CandleChart({ symbol }) {
     }
   }, [binanceChartData])
 
-  return binanceChartData && (
+  return (
     <div className='bg-[--background-card] text-white rounded-lg row-start-2 row-end-4'>
       <div id="chart">
         <Chart options={state.options} series={state.series} type="candlestick" height={350} />
