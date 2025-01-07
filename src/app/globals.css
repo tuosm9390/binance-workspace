@@ -7,7 +7,9 @@
   --foreground: #0b0e11;
   --background-card: #181a20;
   --plus: rgb(46 189 133);
+  --plus-hover: rgb(46 189 133 / 60%);
   --minus: rgb(246 70 93);
+  --minus-hover: rgb(246 70 93 / 60%);
 }
 
 @media (prefers-color-scheme: dark) {

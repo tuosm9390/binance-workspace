@@ -8,6 +8,7 @@ import Trades from "../../../component/Trades/Trades";
 import OrderForm from "../../../component/OrderForm/OrderForm";
 import MarketActivity from "../../../component/MarketActivity/MarketActivity";
 import { useSymbolStore } from "../../../hooks/stateManagement";
+import BasicTable from "../../../component/BasicTable/BasicTable";
 
 function page() {
   const { defaultSymbol } = useSymbolStore();
@@ -29,6 +30,8 @@ function page() {
         <OrderForm symbol={defaultSymbol} />
         {/* Market Activity Tab */}
         <MarketActivity symbol={defaultSymbol} />
+        {/* Basic Table Tab */}
+        <BasicTable symbol={defaultSymbol} />
       </>
     </div>
   );

@@ -76,7 +76,7 @@ function CandleChart({ symbol }) {
           show: false,
         },
         type: "candlestick",
-        height: 350,
+        height: 500,
       },
       title: {
         // text: 'CandleStick Chart',
@@ -120,7 +120,7 @@ function CandleChart({ symbol }) {
           options={state.options}
           series={state.series}
           type="candlestick"
-          height={350}
+          height={500}
         />
       </div>
     </div>

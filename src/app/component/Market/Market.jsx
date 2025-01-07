@@ -1,17 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   getBinanceHotCoins,
-  getBinanceListedCoins,
+  getBinanceListedCoins
 } from "../../utils/fetchBinanceData";
 import { FiSearch } from "react-icons/fi";
 import { useSymbolStore } from "../../hooks/stateManagement";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+
+const FILTER_ITEMS = ["USDT", "FDUSDT", "USDC", "TUSD", "BNB", "BTC", "ALTS", "FIAT"];
+
+const getFilterItemStyles = (isActive) => `
+  text-gray-400 
+  font-semibold 
+  whitespace-nowrap 
+  cursor-pointer
+  hover:text-gray-300
+  transition-colors
+  ${isActive ? "border-b-2 border-yellow-400 text-white" : ""}
+`.trim();
 
 const Market = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const { defaultSymbol, setDefaultSymbol, base, setBase, quote, setQuote } =
-    useSymbolStore();
+  const { defaultSymbol, setDefaultSymbol, base, setBase, quote, setQuote } = useSymbolStore();
+  const [filter, setFilter] = useState("USDT");
 
   const { data: hotCoins } = useQuery({
     queryKey: ["hotCoins"],
@@ -66,21 +79,55 @@ const Market = () => {
       {!isFocused && (
         <>
           <div className="w-full border-b border-gray-700">
-            <div className="flex gap-4 mt-2 text-sm px-4">
-              <span className="text-white border-b-2 border-yellow-400 font-semibold">
-                USDT
-              </span>
-              <span className="text-gray-400 font-semibold">FDUSDT</span>
-              <span className="text-gray-400 font-semibold">USDC</span>
-              <span className="text-gray-400 font-semibold">TUSD</span>
-              <span className="text-gray-400 font-semibold">BNB</span>
+            <div className="relative flex items-center px-6">
+              <div className="absolute left-0 flex items-center h-full z-10">
+                <div className="absolute w-8 h-full bg-gradient-to-r from-[--background-card] to-[--background-card]/100"></div>
+                <button
+                  className="p-1 text-gray-400 hover:text-white z-20 ml-2"
+                  onClick={() => {
+                    const container = document.getElementById('filter-container');
+                    container.scrollLeft -= 100;
+                  }}
+                >
+                  <MdKeyboardArrowLeft className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div
+                id="filter-container"
+                className="flex gap-4 mt-2 text-sm overflow-x-auto scrollbar-hide px-4"
+                style={{ scrollBehavior: 'smooth' }}
+              >
+                {FILTER_ITEMS.map((item) => (
+                  <span
+                    key={item}
+                    className={getFilterItemStyles(filter === item)}
+                    onClick={() => setFilter(item)}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+
+              <div className="absolute right-0 flex items-center h-full z-10">
+                <div className="absolute w-8 h-full bg-gradient-to-l from-[--background-card] to-[--background-card]/100"></div>
+                <button
+                  className="p-1 text-gray-400 hover:text-white z-20 mr-2"
+                  onClick={() => {
+                    const container = document.getElementById('filter-container');
+                    container.scrollLeft += 100;
+                  }}
+                >
+                  <MdKeyboardArrowRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="w-full">
             <div className="flex flex-col mt-2 text-sm h-[320px] overflow-y-auto">
               {listedCoins?.data &&
-                listedCoins.data.map((coin, index) => (
+                listedCoins.data.filter((coin) => coin.quote === filter).map((coin, index) => (
                   <div
                     key={index}
                     className="flex justify-between items-center hover:bg-gray-800 p-2 rounded cursor-pointer"

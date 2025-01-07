@@ -46,3 +46,17 @@ export const getBinanceTrades = async (symbol) => {
 
   return response.data;
 };
+
+export const getBinanceSymbolActivityList = async () => {
+  const url = `https://www.binance.com/bapi/accounts/v1/public/commission/symbol-activity-list?currentPage=1&pageSize=500`;
+  const response = await axios.get(url);
+
+  return response.data;
+};
+
+export const getBinanceProductBySymbol = async (symbol) => {
+  const url = `https://www.binance.com/bapi/asset/v2/public/asset-service/product/get-product-by-symbol?symbol=${symbol}`;
+  const response = await axios.get(url);
+
+  return response.data;
+};
