@@ -6,6 +6,8 @@ import ReactQueryProviders from "./hooks/useReactQuery";
 import Header from "./component/Header/Header";
 import { RecoilRoot } from "recoil";
 import { useSymbolStore } from "./hooks/stateManagement";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,6 +21,11 @@ const geistMono = Geist_Mono({
 
 export default function RootLayout({ children }) {
   const { defaultSymbol } = useSymbolStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push(`/en/trade/${defaultSymbol}`);
+  }, [defaultSymbol, router]);
 
   return (
     <html lang="en">

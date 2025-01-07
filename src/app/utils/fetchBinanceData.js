@@ -39,3 +39,10 @@ export const getBinanceDepth = async (symbol) => {
 
   return response.data
 }
+
+export const getBinanceTrades = async (symbol) => {
+  const url = `https://www.binance.com/api/v3/trades?symbol=${symbol}&limit=100`
+  const response = await axios.get(url)
+
+  return response.data
+}

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import Chart from "react-apexcharts";
+import dynamic from 'next/dynamic'
 import { getBinanceChartData } from '../../utils/fetchBinanceData';
 import { useQuery } from '@tanstack/react-query';
+
+const Chart = dynamic(() => import('react-apexcharts'), {
+  ssr: false,
+});
 
 function CandleChart({ symbol }) {
   const [interval, setInterval] = useState("1d")

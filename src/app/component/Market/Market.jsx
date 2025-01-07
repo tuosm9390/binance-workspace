@@ -10,7 +10,7 @@ import { useSymbolStore } from "../../hooks/stateManagement";
 const Market = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const { defaultSymbol, setDefaultSymbol } = useSymbolStore();
+  const { defaultSymbol, setDefaultSymbol, base, setBase, quote, setQuote } = useSymbolStore();
 
   const { data: hotCoins } = useQuery({
     queryKey: ["hotCoins"],
@@ -25,6 +25,12 @@ const Market = () => {
   const handlePairClick = (pair) => {
     setIsFocused(false);
     setDefaultSymbol(pair.symbol);
+    setBase(pair.base || pair.assetCode);
+    setQuote(pair.quote || removeQuoteCurrency(pair.symbol, pair.assetCode));
+  };
+
+  const removeQuoteCurrency = (symbol, quote) => {
+    return symbol.replace(quote, '');
   };
 
   return (
@@ -97,7 +103,7 @@ const Market = () => {
       {isFocused && (
         <>
           <div className="w-full">
-            <div className="flex flex-col mt-2 text-sm">
+            <div className="flex flex-col mt-2 text-sm h-[350px] overflow-y-auto">
               <span className="text-white font-semibold">Top Search</span>
               <div className="flex flex-col">
                 {hotCoins.data.map((coin, index) => (
@@ -117,41 +123,6 @@ const Market = () => {
             </div>
           </div>
         </>
-      )}
-
-      {/* 드롭다운 검색 결과 (focus 시에만 표시) */}
-      {isFocused && (
-        <></>
-        // <div className="absolute w-full mt-2 bg-gray-900 rounded-lg shadow-lg z-50">
-        //   <div className="p-4">
-        //     <div className="flex justify-between text-sm text-gray-400 mb-2">
-        //       <span>Pair</span>
-        //       <div className="flex gap-4">
-        //         <span>Last Price</span>
-        //         <span>24h Change</span>
-        //       </div>
-        //     </div>
-
-        //     {/* 검색 결과 목록 */}
-        //     <div className="space-y-2">
-        //       {hotCoins.data.map((pair, index) => (
-        //         <div key={index} className="flex justify-between items-center hover:bg-gray-800 p-2 rounded" onClick={() => handlePairClick(pair)}>
-        //           <div className="flex items-center gap-2">
-        //             {/* <StarIcon className="h-4 w-4 text-yellow-400" /> */}
-        //             <span className="text-white">{pair.assetCode + "/USDT"}</span>
-        //             {/* <span className="text-gray-400 text-sm">{pair.leverage}</span> */}
-        //           </div>
-        //           <div className="flex gap-4">
-        //             {/* <span className="text-white">{pair.price}</span>
-        //             <span className={pair.change.startsWith('+') ? 'text-green-500' : 'text-red-500'}>
-        //               {pair.change}
-        //             </span> */}
-        //           </div>
-        //         </div>
-        //       ))}
-        //     </div>
-        //   </div>
-        // </div>
       )}
     </div>
   );
