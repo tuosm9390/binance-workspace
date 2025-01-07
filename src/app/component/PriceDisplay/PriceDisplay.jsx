@@ -18,7 +18,7 @@ const PriceDisplay = ({ symbol }) => {
   })
 
   return (
-    <div className="bg-[--background-card] text-white items-center flex pl-4 rounded-lg col-span-2 row-span-1">
+    <div className="bg-[--background-card] text-sm items-center flex pl-4 rounded-lg col-span-2 row-span-1 overflow-hidden">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2 h-[40px]">
           <span className="text-gray-500 border border-gray-500 rounded-md p-1">
@@ -46,7 +46,7 @@ const PriceDisplay = ({ symbol }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-sm h-[40px]">
+        <div className="flex items-center gap-4 text-sm h-[40px] w-screen">
           <div className="flex flex-col items-start gap-1">
             <div className="text-gray-400">24h Change</div>
             <div className="flex items-start gap-1">

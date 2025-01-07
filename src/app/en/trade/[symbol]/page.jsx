@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import CandleChart from '../../../component/Chart/CandleChart'
-import PriceDisplay from '../../../component/PriceDisplay/PriceDisplay'
-import OrderBook from '../../../component/OrderBook/OrderBook'
-import Market from '../../../component/Market/Market'
-import Trades from '../../../component/Trades/Trades'
-import OrderForm from '../../../component/OrderForm/OrderForm'
-import MarketActivity from '../../../component/MarketActivity/MarketActivity'
-import { useSymbolStore } from '../../../hooks/stateManagement'
+import CandleChart from "../../../component/Chart/CandleChart";
+import PriceDisplay from "../../../component/PriceDisplay/PriceDisplay";
+import OrderBook from "../../../component/OrderBook/OrderBook";
+import Market from "../../../component/Market/Market";
+import Trades from "../../../component/Trades/Trades";
+import OrderForm from "../../../component/OrderForm/OrderForm";
+import MarketActivity from "../../../component/MarketActivity/MarketActivity";
+import { useSymbolStore } from "../../../hooks/stateManagement";
 
 function page() {
   const { defaultSymbol } = useSymbolStore();
@@ -31,7 +31,7 @@ function page() {
         <MarketActivity symbol={defaultSymbol} />
       </>
     </div>
-  )
+  );
 }
 
-export default page
+export default page;
