@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { create } from "zustand";
 
 export const useSymbolStore = create((set) => ({
   defaultSymbol: "BTCUSDT",
@@ -7,4 +7,4 @@ export const useSymbolStore = create((set) => ({
   setDefaultSymbol: (symbol) => set({ defaultSymbol: symbol }),
   setBase: (base) => set({ base }),
   setQuote: (quote) => set({ quote }),
-}))
+}));

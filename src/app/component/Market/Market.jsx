@@ -10,7 +10,8 @@ import { useSymbolStore } from "../../hooks/stateManagement";
 const Market = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const { defaultSymbol, setDefaultSymbol, base, setBase, quote, setQuote } = useSymbolStore();
+  const { defaultSymbol, setDefaultSymbol, base, setBase, quote, setQuote } =
+    useSymbolStore();
 
   const { data: hotCoins } = useQuery({
     queryKey: ["hotCoins"],
@@ -30,7 +31,7 @@ const Market = () => {
   };
 
   const removeQuoteCurrency = (symbol, quote) => {
-    return symbol.replace(quote, '');
+    return symbol.replace(quote, "");
   };
 
   return (

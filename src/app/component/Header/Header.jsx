@@ -8,6 +8,6 @@ const Header = () => {
       {/* <UserMenu /> */}
     </header>
   );
-}
+};
 
 export default Header;
