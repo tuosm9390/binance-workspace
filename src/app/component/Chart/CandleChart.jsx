@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { getBinanceChartData } from "../../utils/fetchBinanceData";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Chart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
 function CandleChart({ symbol }) {
-  const [interval, setInterval] = useState("1d");
+  const [interval, setInterval] = useState("1h");
 
+  // 초기 데이터 호출
   const { data: binanceChartData, isLoading } = useQuery({
     queryKey: ["binanceChartData", interval, symbol],
     queryFn: async () => {
@@ -67,7 +68,7 @@ function CandleChart({ symbol }) {
   const [state, setState] = useState({
     series: [
       {
-        data: [],
+        data: binanceChartData,
       },
     ],
     options: {
@@ -99,6 +100,49 @@ function CandleChart({ symbol }) {
       },
     },
   });
+
+  // 웹소켓 연결
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${interval}`);
+    websocket.onopen = () => {
+      return
+    };
+    websocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      // WebSocket 데이터를 chart 형식으로 변환
+      const transformedData = {
+        x: data.k.t,  // Kline open time
+        y: [
+          parseFloat(data.k.o),  // Open price
+          parseFloat(data.k.h),  // High price
+          parseFloat(data.k.l),  // Low price
+          parseFloat(data.k.c),  // Close price
+        ]
+      };
+
+      queryClient.setQueryData(
+        ["binanceChartData", interval, symbol],
+        (oldData) => {
+          if (!oldData) return [transformedData];
+
+          // 마지막 캔들의 시간과 새로운 데이터의 시간 비교
+          const lastCandle = oldData[oldData.length - 1];
+          if (lastCandle.x === transformedData.x) {
+            // 같은 시간대의 캔들이면 업데이트
+            return [...oldData.slice(0, -1), transformedData];
+          } else {
+            // 새로운 시간대의 캔들이면 추가
+            return [...oldData, transformedData];
+          }
+        }
+      );
+    };
+
+    return () => {
+      websocket.close();
+    };
+  }, [queryClient]);
 
   useEffect(() => {
     if (binanceChartData) {

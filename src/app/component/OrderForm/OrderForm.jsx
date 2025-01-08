@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useOrderFormStore, usePriceStore } from "../../hooks/stateManagement";
 import LimitTable from "./LimitTable";
 import MarketTable from "./MarketTable";
+import OrderTypeButton from "./components/OrderTypeButton";
 
 const OrderForm = () => {
   const [orderType, setOrderType] = useState("Limit");
@@ -26,24 +27,9 @@ const OrderForm = () => {
     <div className="bg-[--background-card] text-white p-4 rounded-lg row-start-4 row-end-6 col-start-2">
       {/* Order Type Selector */}
       <div className="flex gap-4 mb-4 text-sm border-b border-gray-700">
-        <button
-          className={`pb-2 font-semibold ${orderType === "Limit" ? "text-white border-b-2 border-yellow-400" : "text-gray-400"}`}
-          onClick={() => setOrderType("Limit")}
-        >
-          Limit
-        </button>
-        <button
-          className={`pb-2 font-semibold ${orderType === "Market" ? "text-white border-b-2 border-yellow-400" : "text-gray-400"}`}
-          onClick={() => setOrderType("Market")}
-        >
-          Market
-        </button>
-        <button
-          className={`pb-2 font-semibold ${orderType === "Stop Limit" ? "text-white border-b-2 border-yellow-400" : "text-gray-400"}`}
-          onClick={() => setOrderType("Stop Limit")}
-        >
-          Stop Limit
-        </button>
+        <OrderTypeButton type={"Limit"} selectedType={orderType} setOrderType={setOrderType} />
+        <OrderTypeButton type={"Market"} selectedType={orderType} setOrderType={setOrderType} />
+        <OrderTypeButton type={"Stop Limit"} selectedType={orderType} setOrderType={setOrderType} />
       </div>
 
       {orderType === "Limit" && <LimitTable buyPrice={buyPrice} setBuyPrice={setBuyPrice} sellPrice={sellPrice} setSellPrice={setSellPrice} buyAmount={buyAmount} setBuyAmount={setBuyAmount} sellAmount={sellAmount} setSellAmount={setSellAmount} />}

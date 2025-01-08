@@ -1,19 +1,64 @@
-import { getBinanceTrades } from "../../utils/fetchBinanceData";
-import { useQuery } from "@tanstack/react-query";
-import { useOrderFormStore, useSymbolStore } from "../../hooks/stateManagement";
-import { formatNumber } from "../../utils/formatNumber";
+import { getBinanceTradesData } from "../../utils/fetchBinanceData";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useOrderFormStore, usePriceStore, useSymbolStore } from "../../hooks/stateManagement";
+import { formatNumber, tradeFormatNumber } from "../../utils/formatNumber";
+import { useEffect } from "react";
 
 const Trades = () => {
   const { defaultSymbol, base, quote } = useSymbolStore();
   const { orderForm } = useOrderFormStore();
+  const { setLastPrice, setIsBuyMaker } = usePriceStore();
 
   const { data: trades } = useQuery({
     queryKey: ["trades", defaultSymbol],
     queryFn: async () => {
-      const data = await getBinanceTrades(defaultSymbol);
+      const data = await getBinanceTradesData(defaultSymbol);
       return [...data].sort((a, b) => b.time - a.time);
     },
   });
+
+  // 웹소켓 연결
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/${defaultSymbol.toLowerCase()}@aggTrade`);
+    websocket.onopen = () => {
+      return
+    };
+    websocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      // WebSocket 데이터를 trades 형식으로 변환
+      const transformedData = {
+        id: data.t,
+        isBestMatch: data.M,
+        isBuyerMaker: data.m,
+        price: data.p,
+        qty: data.q,
+        quoteQty: (parseFloat(data.p) * parseFloat(data.q)).toString(),
+        time: data.T
+      };
+
+      // setQueriesData를 setQueryData로 변경
+      // setQueriesData: 부분적으로 일치하는 모든 쿼리에 영향
+      // setQueryData: 정확히 일치하는 쿼리에만 영향
+      queryClient.setQueryData(
+        ["trades", defaultSymbol],
+        (oldData) => {
+          // oldData가 없거나 배열이 아닌 경우 새 배열 생성
+          const currentTrades = Array.isArray(oldData) ? oldData : [];
+          return [transformedData, ...currentTrades]; // 최대 50개로 제한
+        }
+      );
+    };
+
+    return () => {
+      websocket.close();
+    };
+  }, [queryClient]);
+
+  useEffect(() => {
+    setLastPrice(parseFloat(trades?.[0]?.price));
+    setIsBuyMaker(trades?.[0]?.isBuyerMaker);
+  }, [trades])
 
   return (
     <div className="bg-[--background-card] text-white rounded-lg row-start-3 row-end-5 col-start-3 flex flex-col">
@@ -22,7 +67,7 @@ const Trades = () => {
       </div>
 
       <div className="text-xs text-gray-400 grid grid-cols-[3fr_2fr_2fr] mb-2 px-4">
-        <div className="text-left">Price ({quote})</div>
+        <div className="text-left">price ({quote})</div>
         <div className="text-right">Amount ({base})</div>
         <div className="text-right">Time</div>
       </div>
@@ -36,7 +81,7 @@ const Trades = () => {
               {parseFloat(trade.price).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 10 })}
             </div>
             <div className="text-right">
-              {formatNumber(parseFloat(trade.qty))}
+              {tradeFormatNumber(parseFloat(trade.qty))}
             </div>
             <div className="text-right">
               {new Date(trade.time).toLocaleTimeString("en-US", {

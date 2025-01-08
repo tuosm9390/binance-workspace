@@ -1,8 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
-  getBinanceHotCoins,
-  getBinanceListedCoins
+  getBinanceHotCoinsData, getBinanceSymbolTickerPriceData
 } from "../../utils/fetchBinanceData";
 import { FiSearch } from "react-icons/fi";
 import { useSymbolStore } from "../../hooks/stateManagement";
@@ -28,12 +27,16 @@ const Market = () => {
 
   const { data: hotCoins } = useQuery({
     queryKey: ["hotCoins"],
-    queryFn: getBinanceHotCoins,
+    queryFn: getBinanceHotCoinsData,
   });
 
-  const { data: listedCoins } = useQuery({
-    queryKey: ["listedCoins"],
-    queryFn: getBinanceListedCoins,
+  const { data: allTickerPriceData } = useQuery({
+    queryKey: ["allTickerPriceData"],
+    queryFn: async () => {
+      var result = await getBinanceSymbolTickerPriceData();
+      result = result.filter((item) => item.count != 0)
+      return result;
+    },
   });
 
   const handlePairClick = (pair) => {
@@ -47,6 +50,49 @@ const Market = () => {
     return symbol.replace(quote, "");
   };
 
+  // 웹소켓 연결
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/!miniTicker@arr@3000ms`);
+    websocket.onopen = () => {
+      return
+    };
+    websocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      // 데이터가 배열 형태로 오므로 각 항목을 순회하며 업데이트
+      data.forEach(item => {
+        const transformedData = {
+          "symbol": item.s,
+          "openPrice": parseFloat(item.o),
+          "lastPrice": parseFloat(item.c),
+          "count": item.n
+        };
+
+        queryClient.setQueryData(
+          ["allTickerPriceData"],
+          (oldData) => {
+            if (!oldData) return oldData;
+
+            return oldData.map(coin => {
+              if (coin.symbol === transformedData.symbol) {
+                return {
+                  ...coin,
+                  lastPrice: transformedData.lastPrice,
+                  priceChangePercent: ((transformedData.lastPrice - transformedData.openPrice) / transformedData.openPrice) * 100,
+                };
+              }
+              return coin;
+            });
+          }
+        );
+      });
+    };
+
+    return () => {
+      websocket.close();
+    };
+  }, [queryClient]);
+
   return (
     <div className="bg-[--background-card] text-white items-center flex flex-col rounded-lg row-start-1 row-end-3">
       {/* 검색 입력창 */}
@@ -58,7 +104,7 @@ const Market = () => {
             placeholder="Search"
             className="w-full bg-transparent py-1 text-white outline-none"
             onFocus={() => {
-              getBinanceHotCoins();
+              getBinanceHotCoinsData();
               setIsFocused(true);
             }}
             // 검색창 벗어나면 검색 결과 사라지도록
@@ -126,11 +172,28 @@ const Market = () => {
 
           <div className="w-full">
             <div className="flex flex-col mt-2 text-sm h-[320px] overflow-y-auto">
-              {listedCoins?.data &&
-                listedCoins.data.filter((coin) => coin.quote === filter).map((coin, index) => (
+              <div className="grid grid-cols-[3fr_2fr_2fr] pl-4 pr-0 py-1">
+                <div className="text-gray-400 font-semibold text-xs">Pair</div>
+                <div className="text-gray-400 font-semibold text-xs">Last Price</div>
+                <div className="text-gray-400 font-semibold text-xs">24h Change</div>
+              </div>
+              {allTickerPriceData &&
+                allTickerPriceData?.filter((coin) => {
+                  const symbol = coin.symbol;
+                  const lastFourChars = symbol.slice(-4);  // 뒤에서 4글자 추출
+                  const hasFilter = lastFourChars.includes(filter);  // 필터값이 포함되어 있는지 확인
+
+                  if (hasFilter) {
+                    // filter가 포함된 경우, 해당 부분을 제외한 문자열을 base로 저장
+                    coin.base = symbol.replace(filter, '');
+                    coin.quote = filter;
+                  }
+
+                  return hasFilter;
+                }).map((coin, index) => (
                   <div
                     key={index}
-                    className="flex justify-between items-center hover:bg-gray-800 p-2 rounded cursor-pointer"
+                    className="grid grid-cols-[4fr_3fr_2fr] hover:bg-gray-800 py-1 px-4 rounded cursor-pointer"
                     onClick={() => handlePairClick(coin)}
                   >
                     <div className="flex items-center gap-2">
@@ -138,8 +201,20 @@ const Market = () => {
                         {coin.base + "/" + coin.quote}
                       </span>
                       <span className="text-xs bg-gray-800 px-1 rounded-sm">
-                        {Number(coin.marginRatio) + "x"}
+                        {/* {Number(coin.marginRatio) + "x"} */}
+                        5x
                       </span>
+                    </div>
+
+                    <div className="text-right text-xs">
+                      {parseFloat(coin.lastPrice) < 1
+                        ? parseFloat(coin.lastPrice).toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 10 })
+                        : parseFloat(coin.lastPrice).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 10 })
+                      }
+                    </div>
+
+                    <div className={`text-right text-xs ${parseFloat(coin.priceChangePercent) > 0 ? "text-[--plus]" : "text-[--minus]"}`}>
+                      {parseFloat(coin.priceChangePercent).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
                     </div>
                   </div>
                 ))}
@@ -150,23 +225,43 @@ const Market = () => {
 
       {isFocused && (
         <>
-          <div className="w-full">
+          <div className="w-full pl-4">
             <div className="flex flex-col mt-2 text-sm h-[350px] overflow-y-auto">
-              <span className="text-white font-semibold">Top Search</span>
+              <span className="text-white font-semibold pb-3">Top Search</span>
               <div className="flex flex-col">
-                {hotCoins.data.map((coin, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center hover:bg-gray-800 p-2 rounded cursor-pointer"
-                    onClick={() => handlePairClick(coin)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-white text-xs">
-                        {coin.assetCode + "/USDT"}
-                      </span>
+                {hotCoins.data.map((coin, index) => {
+                  // allTickerPriceData에서 일치하는 가격 정보 찾기
+                  const priceData = allTickerPriceData?.find(
+                    (price) => price.symbol === (coin.symbol)
+                  );
+
+                  return (
+                    <div
+                      key={index}
+                      className="grid grid-cols-[3fr_2fr_2fr] hover:bg-gray-800 py-1 rounded cursor-pointer pr-4"
+                      onClick={() => handlePairClick(coin)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-white text-xs">
+                          {coin.assetCode + "/USDT"}
+                        </span>
+                      </div>
+                      {priceData && (
+                        <>
+                          <div className="text-right text-xs">
+                            {parseFloat(priceData.lastPrice) < 1
+                              ? parseFloat(priceData.lastPrice).toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 10 })
+                              : parseFloat(priceData.lastPrice).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 10 })
+                            }
+                          </div>
+                          <div className={`text-right text-xs ${parseFloat(priceData.priceChangePercent) > 0 ? "text-[--plus]" : "text-[--minus]"}`}>
+                            {parseFloat(priceData.priceChangePercent).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
+                          </div>
+                        </>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

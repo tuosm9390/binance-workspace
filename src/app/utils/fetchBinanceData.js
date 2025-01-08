@@ -6,56 +6,49 @@ export const getBinanceChartData = async (interval, symbol) => {
   if (interval) params.append("interval", interval);
   if (symbol) params.append("symbol", symbol);
 
-  const url = `https://api.binance.com/api/v3/klines?${params.toString()}&limit=100`;
+  const url = `https://api.binance.com/api/v3/uiKlines?${params.toString()}&limit=100`;
   const response = await axios.get(url);
 
   return response.data;
 };
 
-export const getBinanceSymbol24HTickerPrice = async (symbol) => {
-  const url = `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`;
+export const getBinanceSymbolTickerPriceData = async (symbol) => {
+  const url = `https://api.binance.com/api/v3/ticker/24hr${symbol ? `?symbol=${symbol}` : ""}`;
   const response = await axios.get(url);
 
   return response.data;
 };
 
-export const getBinanceHotCoins = async () => {
+export const getBinanceHotCoinsData = async () => {
   const url = `https://www.binance.com/bapi/apex/v1/public/apex/market/spot/hot-coins?currency=USD`;
   const response = await axios.get(url);
 
   return response.data;
 };
 
-export const getBinanceListedCoins = async () => {
-  const url = `https://www.binance.com/bapi/margin/v1/public/isolated-margin/pair/listed`;
-  const response = await axios.get(url);
-
-  return response.data;
-};
-
-export const getBinanceDepth = async (symbol) => {
+export const getBinanceOrderBookData = async (symbol) => {
   const url = `https://www.binance.com/api/v3/depth?symbol=${symbol}&limit=1000`;
   const response = await axios.get(url);
 
   return response.data;
 };
 
-export const getBinanceTrades = async (symbol) => {
+export const getBinanceTradesData = async (symbol) => {
   const url = `https://www.binance.com/api/v3/trades?symbol=${symbol}&limit=100`;
   const response = await axios.get(url);
 
   return response.data;
 };
 
-export const getBinanceSymbolActivityList = async () => {
-  const url = `https://www.binance.com/bapi/accounts/v1/public/commission/symbol-activity-list?currentPage=1&pageSize=500`;
+export const getBinanceProductBySymbolData = async (symbol) => {
+  const url = `https://www.binance.com/bapi/asset/v2/public/asset-service/product/get-product-by-symbol?symbol=${symbol}`;
   const response = await axios.get(url);
 
   return response.data;
 };
 
-export const getBinanceProductBySymbol = async (symbol) => {
-  const url = `https://www.binance.com/bapi/asset/v2/public/asset-service/product/get-product-by-symbol?symbol=${symbol}`;
+export const getBinanceExchangeInfoData = async (symbol) => {
+  const url = `https://www.binance.com/api/v3/exchangeInfo?symbol=${symbol}`;
   const response = await axios.get(url);
 
   return response.data;

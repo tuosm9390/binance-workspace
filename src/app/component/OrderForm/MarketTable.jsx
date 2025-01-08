@@ -1,23 +1,61 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useOrderFormStore, useSymbolStore } from '../../hooks/stateManagement';
-import TPSLFields from './TPSLFields';
+import { getBinanceExchangeInfoData } from '../../utils/fetchBinanceData';
+import { useQuery } from '@tanstack/react-query';
+import PriceInput from './components/PriceInput';
+import AmountInput from './components/AmountInput';
+import AvailableBalance from './components/AvailableBalance';
+import ActionButton from './components/ActionButton';
+import Slider from './components/Slider';
 
 const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount, setBuyAmount, sellAmount, setSellAmount }) => {
-  const { orderForm, setOrderForm } = useOrderFormStore();
-  const { base, quote } = useSymbolStore();
+  const { defaultSymbol, base, quote } = useSymbolStore();
+  const [showBuyDropdown, setShowBuyDropdown] = useState(false);
+  const [showSellDropdown, setShowSellDropdown] = useState(false);
+  const [selectedBuyCurrency, setSelectedBuyCurrency] = useState('');
+  const [selectedSellCurrency, setSelectedSellCurrency] = useState('');
+  const timeoutRef = useRef(null);
 
-
-  // 문자열에서 콤마를 제거하고 숫자로 변환하는 함수
-  const parseNumberValue = (value) => {
-    if (typeof value === 'string') {
-      return value.replace(/,/g, '');
+  useEffect(() => {
+    if (quote) {
+      setSelectedBuyCurrency(quote);
+      setSelectedSellCurrency(quote);
     }
-    return value;
+  }, [quote]);
+
+  const handleBuyMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setShowBuyDropdown(false);
+    }, 100);
   };
 
-  // 숫자와 소수점만 허용하는 함수
+  const handleSellMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setShowSellDropdown(false);
+    }, 100);
+  };
+
+  const handleBuyMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setShowBuyDropdown(true);
+  };
+
+  const handleSellMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setShowSellDropdown(true);
+  };
+
+  const { data: exchangeInfoData } = useQuery({
+    queryKey: ['exchangeInfoData', defaultSymbol],
+    queryFn: () => getBinanceExchangeInfoData(defaultSymbol),
+    enabled: !!defaultSymbol,
+  });
+
   const handleNumberInput = (value) => {
-    // 숫자와 소수점만 허용하는 정규식
     const regex = /^[0-9]*\.?[0-9]*$/;
     if (regex.test(value) || value === '') {
       return value;
@@ -25,7 +63,6 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
     return false;
   };
 
-  // 구매 가격 변경 함수
   const handleBuyPriceChange = (e) => {
     const newValue = handleNumberInput(e.target.value);
     if (newValue !== false) {
@@ -33,7 +70,6 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
     }
   };
 
-  // 판매 가격 변경 함수
   const handleSellPriceChange = (e) => {
     const newValue = handleNumberInput(e.target.value);
     if (newValue !== false) {
@@ -41,7 +77,6 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
     }
   };
 
-  // 구매 수량 변경 함수
   const handleBuyAmountChange = (e) => {
     const newValue = handleNumberInput(e.target.value);
     if (newValue !== false) {
@@ -49,7 +84,6 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
     }
   };
 
-  // 판매 수량 변경 함수
   const handleSellAmountChange = (e) => {
     const newValue = handleNumberInput(e.target.value);
     if (newValue !== false) {
@@ -57,129 +91,83 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
     }
   };
 
-  return (
+  return exchangeInfoData && (
     <>
-      {/* Buy Form */}
       <div className="flex gap-4">
+        {/* Buy Form */}
         <div className="flex-1">
-          {/* Price Input */}
-          <div className="mb-3">
-            <div className="relative flex rounded-lg p-2 text-sm font-semibold transition-all bg-gray-700 bg-opacity-50" aria-readonly>
-              <span className="text-gray-400">Price</span>
-              <input
-                type="text"
-                className="w-full bg-transparent pr-2 text-right outline-none"
-                // value={parseNumberValue(buyPrice) || ""}
-                onChange={handleBuyPriceChange}
-                disabled
-              />
-              <span className="text-gray-500 whitespace-nowrap">Market Price</span>
-            </div>
-          </div>
+          <PriceInput
+            label="Price"
+            onChange={handleBuyPriceChange}
+          />
 
-          {/* Amount Input */}
-          <div className="mb-3">
-            <div className="relative flex border border-gray-700 rounded-lg p-2 text-sm font-semibold hover:border-yellow-400 transition-all duration-500">
-              <span className="text-gray-400">Amount</span>
-              <input
-                type="text"
-                className="w-full bg-transparent pr-2 text-right outline-none"
-                value={buyAmount}
-                onChange={handleBuyAmountChange}
-              />
-              <span className="text-gray-400">{base}</span>
-            </div>
-          </div>
+          <AmountInput
+            label={selectedBuyCurrency === quote ? "Amount" : "Total"}
+            amount={buyAmount}
+            placeholder={selectedBuyCurrency === quote ? `Minimun ${parseFloat(exchangeInfoData?.symbols?.[0]?.filters?.[6]?.minNotional)}` : null}
+            onChange={handleBuyAmountChange}
+            selectedCurrency={selectedBuyCurrency}
+            showDropdown={showBuyDropdown}
+            onMouseEnter={handleBuyMouseEnter}
+            onMouseLeave={handleBuyMouseLeave}
+            onCurrencySelect={(currency) => {
+              setSelectedBuyCurrency(currency);
+              setShowBuyDropdown(false);
+            }}
+            options={[base, quote]}
+          />
 
-          {/* Slider */}
-          <div className="mb-3">
-            <input
-              type="range"
-              className="w-full"
-              min="0"
-              max="100"
-            />
-          </div>
+          <Slider />
 
-          {/* Available Balance */}
-          <div className="flex flex-col text-xs text-gray-400 mb-3">
-            <div className="flex justify-between">
-              <span>Avbl</span>
-              <span className='text-white'>- {quote}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Max Buy</span>
-              <span className='text-white'>-- {base}</span>
-            </div>
-          </div>
+          <AvailableBalance
+            availableCurrency={quote}
+            maxLabel="Max Buy"
+            maxCurrency={base}
+          />
 
-          {/* Buy Button */}
-          <button className="w-full bg-[--plus] hover:bg-[--plus-hover] text-white rounded-lg p-2">
+          <ActionButton type="buy">
             Log In
-          </button>
+          </ActionButton>
         </div>
 
         {/* Sell Form */}
         <div className="flex-1">
-          {/* Price Input */}
-          <div className="mb-3">
-            <div className="relative flex rounded-lg p-2 text-sm font-semibold transition-all bg-gray-700 bg-opacity-50" aria-readonly>
-              <span className="text-gray-400 text-sm">Price</span>
-              <input
-                type="text"
-                className="w-full bg-transparent pr-2 text-right outline-none"
-                // value={parseNumberValue(sellPrice) || ""}
-                onChange={handleSellPriceChange}
-                disabled
-              />
-              <span className="text-gray-500 whitespace-nowrap">Market Price</span>
-            </div>
-          </div>
+          <PriceInput
+            label="Price"
+            onChange={handleSellPriceChange}
+          />
 
-          {/* Amount Input */}
-          <div className="mb-3">
-            <div className="relative flex border border-gray-700 rounded-lg p-2 text-sm font-semibold hover:border-yellow-400 transition-all duration-500">
-              <span className="text-gray-400 text-sm">Amount</span>
-              <input
-                type="text"
-                className="w-full bg-transparent pr-2 text-right outline-none"
-                value={sellAmount}
-                onChange={handleSellAmountChange}
-              />
-              <span className="text-gray-400 text-sm">{base}</span>
-            </div>
-          </div>
+          <AmountInput
+            label={selectedSellCurrency === quote ? "Amount" : "Total"}
+            amount={sellAmount}
+            placeholder={selectedSellCurrency === quote ? `Minimun ${parseFloat(exchangeInfoData?.symbols?.[0]?.filters?.[6]?.minNotional)}` : null}
+            onChange={handleSellAmountChange}
+            selectedCurrency={selectedSellCurrency}
+            showDropdown={showSellDropdown}
+            onMouseEnter={handleSellMouseEnter}
+            onMouseLeave={handleSellMouseLeave}
+            onCurrencySelect={(currency) => {
+              setSelectedSellCurrency(currency);
+              setShowSellDropdown(false);
+            }}
+            options={[base, quote]}
+          />
 
-          {/* Slider */}
-          <div className="mb-3">
-            <input
-              type="range"
-              className="w-full"
-              min="0"
-              max="100"
-            />
-          </div>
+          <Slider />
 
-          {/* Available Balance */}
-          <div className="flex flex-col text-xs text-gray-400 mb-3">
-            <div className="flex justify-between">
-              <span>Avbl</span>
-              <span className='text-white'>- {base}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Max Sell</span>
-              <span className='text-white'>-- {quote}</span>
-            </div>
-          </div>
+          <AvailableBalance
+            availableCurrency={base}
+            maxLabel="Max Sell"
+            maxCurrency={quote}
+          />
 
-          {/* Sell Button */}
-          <button className="w-full bg-[--minus] hover:bg-[--minus-hover] text-white rounded-lg p-2">
+          <ActionButton type="sell">
             Log In
-          </button>
+          </ActionButton>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default MarketTable
+export default MarketTable;

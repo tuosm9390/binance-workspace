@@ -13,7 +13,11 @@ export const useSymbolStore = create((set) => ({
 // Price
 export const usePriceStore = create((set) => ({
   price: 0,
+  lastPrice: 0,
+  isBuyMaker: false,
   setPrice: (price) => set({ price }),
+  setLastPrice: (lastPrice) => set({ lastPrice }),
+  setIsBuyMaker: (isBuyMaker) => set({ isBuyMaker }),
 }));
 
 // Order Form tp/sl checkbox

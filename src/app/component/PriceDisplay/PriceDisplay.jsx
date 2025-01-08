@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { getBinanceProductBySymbol, getBinanceSymbol24HTickerPrice } from "../../utils/fetchBinanceData";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getBinanceProductBySymbolData, getBinanceSymbolTickerPriceData } from "../../utils/fetchBinanceData";
 import { AiFillStar } from "react-icons/ai";
 import { useSymbolStore } from "../../hooks/stateManagement";
+import { useEffect } from "react";
 
 const Tag = ({ text, className }) => (
   <span className={`text-xs ${className}`}>{text}</span>
@@ -10,25 +11,66 @@ const Tag = ({ text, className }) => (
 const PriceDisplay = ({ symbol }) => {
   const { base } = useSymbolStore()
 
-  const { data: binanceSymbol24HTickerPrice, isLoading } = useQuery({
-    queryKey: ["binanceSymbol24HTickerPrice", symbol],
+  const { data: getBinanceSymbolTickerPrice } = useQuery({
+    queryKey: ["getBinanceSymbolTickerPriceData", symbol],
     queryFn: async () => {
-      const result = await getBinanceSymbol24HTickerPrice(symbol);
+      const result = await getBinanceSymbolTickerPriceData(symbol);
       return result;
     },
   });
 
-  const { data: binanceProductBySymbol, isLoading: isLoadingProductBySymbol } = useQuery({
+  const { data: binanceProductBySymbol } = useQuery({
     queryKey: ["binanceProductBySymbol", symbol],
     queryFn: async () => {
-      const result = await getBinanceProductBySymbol(symbol);
+      const result = await getBinanceProductBySymbolData(symbol);
       return result?.data;
     },
   });
 
+  // 웹소켓 연결
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@ticker`);
+    websocket.onopen = () => {
+      return
+    };
+    websocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      // WebSocket 데이터를 ticker 형식으로 변환
+      const transformedData = {
+        "symbol": data.s,
+        "priceChange": data.p,
+        "priceChangePercent": data.P,
+        "weightedAvgPrice": data.w,
+        "openPrice": data.o,
+        "highPrice": data.h,
+        "lowPrice": data.l,
+        "lastPrice": data.c,
+        "volume": data.v,
+        "quoteVolume": data.q,
+        "openTime": data.O,
+        "closeTime": data.C,
+        "firstId": data.F,
+        "lastId": data.L,
+        "count": data.n
+      };
+
+      queryClient.setQueryData(
+        ["getBinanceSymbolTickerPriceData", symbol],
+        (oldData) => {
+          return transformedData;
+        }
+      );
+    };
+
+    return () => {
+      websocket.close();
+    };
+  }, [queryClient]);
+
   return (
     <div className="bg-[--background-card] text-sm items-center flex pl-4 rounded-lg col-span-2 row-span-1 overflow-hidden">
-      {binanceSymbol24HTickerPrice && (
+      {getBinanceSymbolTickerPrice && (
 
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 h-[40px]">
@@ -44,16 +86,22 @@ const PriceDisplay = ({ symbol }) => {
               </div>
               <div className="flex flex-col items-start gap-0">
                 <span
-                  className={`text-xl font-bold ${binanceSymbol24HTickerPrice?.priceChangePercent >= 0
+                  className={`text-xl font-bold ${getBinanceSymbolTickerPrice?.priceChangePercent >= 0
                     ? "text-[--plus]"
                     : "text-[--minus]"
                     }`}
                 >
-                  {Number(binanceSymbol24HTickerPrice?.lastPrice)}
+                  {Number(getBinanceSymbolTickerPrice?.lastPrice).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </span>
                 <span className={`text-xs`}>
                   $
-                  {Number(binanceSymbol24HTickerPrice?.lastPrice)}
+                  {Number(getBinanceSymbolTickerPrice?.lastPrice).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </span>
               </div>
             </div>
@@ -64,26 +112,29 @@ const PriceDisplay = ({ symbol }) => {
               <div className="text-gray-400">24h Change</div>
               <div className="flex items-start gap-1">
                 <span
-                  className={`text-xs ${binanceSymbol24HTickerPrice?.priceChange >= 0
+                  className={`text-xs ${getBinanceSymbolTickerPrice?.priceChange >= 0
                     ? "text-[--plus]"
                     : "text-[--minus]"
                     }`}
                 >
                   {Number(
-                    binanceSymbol24HTickerPrice?.priceChange
-                  )}
+                    getBinanceSymbolTickerPrice?.priceChange
+                  ).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </span>
                 <span
-                  className={`text-xs ${binanceSymbol24HTickerPrice?.priceChangePercent >= 0
+                  className={`text-xs ${getBinanceSymbolTickerPrice?.priceChangePercent >= 0
                     ? "text-[--plus]"
                     : "text-[--minus]"
                     }`}
                 >
-                  {binanceSymbol24HTickerPrice?.priceChangePercent >= 0
+                  {getBinanceSymbolTickerPrice?.priceChangePercent >= 0
                     ? "+"
                     : ""}
                   {Number(
-                    binanceSymbol24HTickerPrice?.priceChangePercent
+                    getBinanceSymbolTickerPrice?.priceChangePercent
                   ).toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -96,7 +147,10 @@ const PriceDisplay = ({ symbol }) => {
               <div className="text-gray-400">24h High</div>
               <div className="flex items-start gap-1">
                 <span className={`text-xs`}>
-                  {Number(binanceSymbol24HTickerPrice?.highPrice)}
+                  {Number(getBinanceSymbolTickerPrice?.highPrice).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </span>
               </div>
             </div>
@@ -104,7 +158,10 @@ const PriceDisplay = ({ symbol }) => {
               <div className="text-gray-400">24h Low</div>
               <div className="flex items-start gap-1">
                 <span className={`text-xs`}>
-                  {Number(binanceSymbol24HTickerPrice?.lowPrice)}
+                  {Number(getBinanceSymbolTickerPrice?.lowPrice).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </span>
               </div>
             </div>
@@ -112,7 +169,7 @@ const PriceDisplay = ({ symbol }) => {
               <div className="text-gray-400">24h Volume({base})</div>
               <div className="flex items-start gap-1">
                 <span className={`text-xs`}>
-                  {Number(binanceSymbol24HTickerPrice?.volume).toLocaleString(
+                  {Number(getBinanceSymbolTickerPrice?.volume).toLocaleString(
                     "en-US",
                     {
                       minimumFractionDigits: 2,
@@ -127,7 +184,7 @@ const PriceDisplay = ({ symbol }) => {
               <div className="flex items-start gap-1">
                 <span className={`text-xs`}>
                   {Number(
-                    binanceSymbol24HTickerPrice?.quoteVolume
+                    getBinanceSymbolTickerPrice?.quoteVolume
                   ).toLocaleString("en-US", {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
