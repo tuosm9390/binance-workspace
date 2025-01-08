@@ -101,6 +101,36 @@ function CandleChart({ symbol }) {
     },
   });
 
+  useWebSocketConnection(symbol, interval);
+
+  useEffect(() => {
+    if (binanceChartData) {
+      setState({
+        ...state,
+        series: [
+          {
+            data: binanceChartData,
+          },
+        ],
+      });
+    }
+  }, [binanceChartData]);
+
+  return (
+    <div className="bg-[--background-card] text-white rounded-lg row-start-2 row-end-4">
+      <div id="chart">
+        <Chart
+          options={state.options}
+          series={state.series}
+          type="candlestick"
+          height={500}
+        />
+      </div>
+    </div>
+  );
+}
+
+const useWebSocketConnection = (symbol, interval) => {
   // 웹소켓 연결
   const queryClient = useQueryClient();
   useEffect(() => {
@@ -143,32 +173,6 @@ function CandleChart({ symbol }) {
       websocket.close();
     };
   }, [queryClient]);
-
-  useEffect(() => {
-    if (binanceChartData) {
-      setState({
-        ...state,
-        series: [
-          {
-            data: binanceChartData,
-          },
-        ],
-      });
-    }
-  }, [binanceChartData]);
-
-  return (
-    <div className="bg-[--background-card] text-white rounded-lg row-start-2 row-end-4">
-      <div id="chart">
-        <Chart
-          options={state.options}
-          series={state.series}
-          type="candlestick"
-          height={500}
-        />
-      </div>
-    </div>
-  );
-}
+};
 
 export default CandleChart;

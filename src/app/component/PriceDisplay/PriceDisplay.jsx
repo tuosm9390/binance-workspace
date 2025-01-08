@@ -9,7 +9,7 @@ const Tag = ({ text, className }) => (
 );
 
 const PriceDisplay = ({ symbol }) => {
-  const { base } = useSymbolStore()
+  const { defaultSymbol, base } = useSymbolStore()
 
   const { data: getBinanceSymbolTickerPrice } = useQuery({
     queryKey: ["getBinanceSymbolTickerPriceData", symbol],
@@ -27,46 +27,7 @@ const PriceDisplay = ({ symbol }) => {
     },
   });
 
-  // 웹소켓 연결
-  const queryClient = useQueryClient();
-  useEffect(() => {
-    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@ticker`);
-    websocket.onopen = () => {
-      return
-    };
-    websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      // WebSocket 데이터를 ticker 형식으로 변환
-      const transformedData = {
-        "symbol": data.s,
-        "priceChange": data.p,
-        "priceChangePercent": data.P,
-        "weightedAvgPrice": data.w,
-        "openPrice": data.o,
-        "highPrice": data.h,
-        "lowPrice": data.l,
-        "lastPrice": data.c,
-        "volume": data.v,
-        "quoteVolume": data.q,
-        "openTime": data.O,
-        "closeTime": data.C,
-        "firstId": data.F,
-        "lastId": data.L,
-        "count": data.n
-      };
-
-      queryClient.setQueryData(
-        ["getBinanceSymbolTickerPriceData", symbol],
-        (oldData) => {
-          return transformedData;
-        }
-      );
-    };
-
-    return () => {
-      websocket.close();
-    };
-  }, [queryClient]);
+  useWebSocketConnection(symbol);
 
   return (
     <div className="bg-[--background-card] text-sm items-center flex pl-4 rounded-lg col-span-2 row-span-1 overflow-hidden">
@@ -216,6 +177,49 @@ const PriceDisplay = ({ symbol }) => {
       )}
     </div>
   );
+};
+
+const useWebSocketConnection = (symbol) => {
+  // 웹소켓 연결
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@ticker`);
+    websocket.onopen = () => {
+      return
+    };
+    websocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      // WebSocket 데이터를 ticker 형식으로 변환
+      const transformedData = {
+        "symbol": data.s,
+        "priceChange": data.p,
+        "priceChangePercent": data.P,
+        "weightedAvgPrice": data.w,
+        "openPrice": data.o,
+        "highPrice": data.h,
+        "lowPrice": data.l,
+        "lastPrice": data.c,
+        "volume": data.v,
+        "quoteVolume": data.q,
+        "openTime": data.O,
+        "closeTime": data.C,
+        "firstId": data.F,
+        "lastId": data.L,
+        "count": data.n
+      };
+
+      queryClient.setQueryData(
+        ["getBinanceSymbolTickerPriceData", symbol],
+        (oldData) => {
+          return transformedData;
+        }
+      );
+    };
+
+    return () => {
+      websocket.close();
+    };
+  }, [queryClient]);
 };
 
 export default PriceDisplay;
