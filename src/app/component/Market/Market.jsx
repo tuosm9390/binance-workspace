@@ -171,7 +171,7 @@ const Market = () => {
           </div>
 
           <div className="w-full">
-            <div className="flex flex-col mt-2 text-sm h-[320px] overflow-y-auto overflow-x-auto">
+            <div className="flex flex-col mt-2 text-sm h-[320px] overflow-y-auto overflow-x-hidden">
               <div className="grid grid-cols-[3fr_2fr_2fr] pl-4 pr-0 py-1">
                 <div className="text-gray-400 font-semibold text-xs">Pair</div>
                 <div className="text-gray-400 font-semibold text-xs">Last Price</div>
