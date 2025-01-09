@@ -48,6 +48,15 @@
 - web socket 함수 분리
 - 재사용 컴포넌트 분리
 
+### 2025.01.09
+
+- footer 컴포넌트 추가
+- footer 컴포넌트 miniTicker 데이터 사용하여 flow 애니메이션 추가
+- market activity 컴포넌트 추가
+- OrderForm - stop limit 컴포넌트 추가, slide 수정
+- NaN 에러 처리
+- tailwind-scrollbar-hide 플러그인 배포 환경에서 사용 불가 문제 해결
+
 ##### 참고
 
 https://velog.io/@kangactor123/React-Query-with-WebSocket
