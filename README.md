@@ -11,7 +11,6 @@
 - React Query 설정
   - QueryClient 구성
   - ReactQueryDevtools 추가
-  - SSR 고려한 staleTime 설정 (60초)
 
 ## 사용 기술
 
@@ -19,8 +18,9 @@
 - React 19
 - TailwindCSS
 - React Query (@tanstack/react-query)
-- TypeScript
-- Zustand
+- JavaScript
+- Zustand (Recoil 대체)
+- Binance Web Socket API
 
 ## 진행 상황
 
