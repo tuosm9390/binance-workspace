@@ -1,16 +1,23 @@
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+import ScrollButton from "./ScrollButton";
 
-const FILTER_ITEMS = ["USDT", "FDUSD", "USDC", "TUSD", "BNB", "BTC", "ALTS", "FIAT"];
+const FILTER_ITEMS = ["USDT", "FDUSDT", "USDC", "TUSD", "BNB", "BTC", "ALTS", "FIAT"];
 
 const FilterTabs = ({ filter, setFilter }) => {
   const getFilterItemStyles = (isActive) => `
+    flex 
+    flex-col 
+    gap-1 
+    items-center 
     text-gray-400 
     font-semibold 
     whitespace-nowrap 
-    cursor-pointer
-    hover:text-gray-300
+    hover:text-white
     transition-colors
-    ${isActive ? "border-b-2 border-yellow-400 text-white" : ""}
+    ${isActive
+      ? "text-white"
+      : "text-gray-400"
+    }
   `.trim();
 
   return (
@@ -22,40 +29,29 @@ const FilterTabs = ({ filter, setFilter }) => {
           className="flex gap-4 mt-2 text-sm overflow-x-auto scrollbar-hide px-4"
           style={{ scrollBehavior: 'smooth' }}
         >
-          {FILTER_ITEMS.map((item) => (
-            <span
-              key={item}
+          {FILTER_ITEMS.map((item, index) => (
+            <button
+              key={index}
               className={getFilterItemStyles(filter === item)}
               onClick={() => setFilter(item)}
             >
               {item}
-            </span>
+              <div className={`border-b-2 ${filter === item ? "border-yellow-400" : "border-transparent"} w-4`}></div>
+            </button>
           ))}
         </div>
+        {/* <button
+          className={`flex flex-col gap-1 items-center text-sm font-semibold ${selectedType === type
+            ? "text-white"
+            : "text-gray-400"
+            }`}
+          onClick={() => setSelectedType(type)}
+        >
+          {type} Trades
+          <div className={`border-b-2 ${selectedType === type ? "border-yellow-400" : "border-transparent"} w-4`}></div>
+        </button> */}
         <ScrollButton direction="right" />
       </div>
-    </div>
-  );
-};
-
-const ScrollButton = ({ direction }) => {
-  const handleScroll = () => {
-    const container = document.getElementById('filter-container');
-    container.scrollLeft += direction === 'left' ? -100 : 100;
-  };
-
-  return (
-    <div className={`absolute ${direction === 'left' ? 'left-0' : 'right-0'} flex items-center h-full z-10`}>
-      <div className={`absolute w-8 h-full bg-gradient-to-${direction === 'left' ? 'r' : 'l'} from-[--background-card] to-[--background-card]/100`}></div>
-      <button
-        className={`p-1 text-gray-400 hover:text-white z-20 ${direction === 'left' ? 'ml-2' : 'mr-2'}`}
-        onClick={handleScroll}
-      >
-        {direction === 'left' ? 
-          <MdKeyboardArrowLeft className="w-5 h-5" /> : 
-          <MdKeyboardArrowRight className="w-5 h-5" />
-        }
-      </button>
     </div>
   );
 };

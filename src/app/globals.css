@@ -75,3 +75,13 @@ input[type="range"]::-webkit-slider-thumb {
     transform: translateX(-50%);
   }
 }
+
+/* 기존 스크롤바 관련 스타일을 다음으로 대체 */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}

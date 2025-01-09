@@ -7,8 +7,8 @@ const Footer = () => {
   const duplicatedTicker = [...miniTicker, ...miniTicker]
 
   return (
-    <footer className="fixed bottom-0 w-full flex h-6 bg-[--background] font-semibold text-sm z-50 pt-1 overflow-hidden">
-      <div className="inline-flex items-center bg-[--background-card] p-1 whitespace-nowrap">
+    <footer className="fixed bottom-0 w-full flex h-6 bg-[--background] font-semibold text-sm z-50 pt-1 overflow-hidden scrollbar-hide">
+      <div className="inline-flex items-center bg-[--background-card] p-1 whitespace-nowrap scrollbar-hide">
         {duplicatedTicker.map((item, index) => (
           <div className="flex items-center gap-2 ml-4 animate-[ticker_20s_linear_infinite]" key={index}>
             <div className="text-xs">{item.symbol}</div>

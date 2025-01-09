@@ -13,8 +13,8 @@ const SearchBar = ({ onFocus, onBlur, searchValue, setSearchValue }) => {
           onBlur={onBlur}
           value={searchValue}
           onChange={(e) => {
-            onBlur(e);
-            setSearchValue(e.target.value);
+            onBlur(e)
+            setSearchValue(e.target.value)
           }}
         />
       </div>
@@ -22,4 +22,4 @@ const SearchBar = ({ onFocus, onBlur, searchValue, setSearchValue }) => {
   );
 };
 
-export default SearchBar;
+export default SearchBar; 

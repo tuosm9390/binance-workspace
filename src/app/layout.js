@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -21,14 +21,7 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <title>
-        {lastPrice
-          ? `${parseFloat(lastPrice).toLocaleString("en-US", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 10,
-            })} | Binance | ${defaultSymbol}`
-          : `Binance | ${defaultSymbol}`}
-      </title>
+      <title>{`${lastPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 10 })} | Binance | ${defaultSymbol}`}</title>
       <body>
         <ReactQueryProviders>
           <RecoilRoot>
