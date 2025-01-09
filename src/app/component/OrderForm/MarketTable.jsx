@@ -1,19 +1,28 @@
-import { useState, useRef, useEffect } from 'react';
-import { useSymbolStore } from '../../hooks/stateManagement';
-import { getBinanceExchangeInfoData } from '../../utils/fetchBinanceData';
-import { useQuery } from '@tanstack/react-query';
-import PriceInput from './components/PriceInput';
-import AmountInput from './components/AmountInput';
-import AvailableBalance from './components/AvailableBalance';
-import ActionButton from './components/ActionButton';
-import Slider from './components/Slider';
+import { useState, useRef, useEffect } from "react";
+import { useSymbolStore } from "../../hooks/stateManagement";
+import { getBinanceExchangeInfoData } from "../../utils/fetchBinanceData";
+import { useQuery } from "@tanstack/react-query";
+import PriceInput from "./components/PriceInput";
+import AmountInput from "./components/AmountInput";
+import AvailableBalance from "./components/AvailableBalance";
+import ActionButton from "./components/ActionButton";
+import Slider from "./components/Slider";
 
-const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount, setBuyAmount, sellAmount, setSellAmount }) => {
+const MarketTable = ({
+  buyPrice,
+  setBuyPrice,
+  sellPrice,
+  setSellPrice,
+  buyAmount,
+  setBuyAmount,
+  sellAmount,
+  setSellAmount,
+}) => {
   const { defaultSymbol, base, quote } = useSymbolStore();
   const [showBuyDropdown, setShowBuyDropdown] = useState(false);
   const [showSellDropdown, setShowSellDropdown] = useState(false);
-  const [selectedBuyCurrency, setSelectedBuyCurrency] = useState('');
-  const [selectedSellCurrency, setSelectedSellCurrency] = useState('');
+  const [selectedBuyCurrency, setSelectedBuyCurrency] = useState("");
+  const [selectedSellCurrency, setSelectedSellCurrency] = useState("");
   const timeoutRef = useRef(null);
 
   useEffect(() => {
@@ -50,14 +59,14 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
   };
 
   const { data: exchangeInfoData } = useQuery({
-    queryKey: ['exchangeInfoData', defaultSymbol],
+    queryKey: ["exchangeInfoData", defaultSymbol],
     queryFn: () => getBinanceExchangeInfoData(defaultSymbol),
     enabled: !!defaultSymbol,
   });
 
   const handleNumberInput = (value) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
-    if (regex.test(value) || value === '') {
+    if (regex.test(value) || value === "") {
       return value;
     }
     return false;
@@ -106,7 +115,14 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
           <AmountInput
             label={selectedBuyCurrency === quote ? "Amount" : "Total"}
             amount={buyAmount}
-            placeholder={selectedBuyCurrency === quote ? `Minimun ${parseFloat(exchangeInfoData?.symbols?.[0]?.filters?.[6]?.minNotional)}` : null}
+            placeholder={
+              selectedBuyCurrency === quote &&
+              exchangeInfoData?.symbols?.[0]?.filters?.[6]?.minNotional
+                ? `Minimun ${parseFloat(
+                    exchangeInfoData.symbols[0].filters[6].minNotional
+                  )}`
+                : ""
+            }
             onChange={handleBuyAmountChange}
             selectedCurrency={selectedBuyCurrency}
             showDropdown={showBuyDropdown}
@@ -127,9 +143,7 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
             maxCurrency={base}
           />
 
-          <ActionButton type="buy">
-            Log In
-          </ActionButton>
+          <ActionButton type="buy">Log In</ActionButton>
         </div>
 
         {/* Sell Form */}
@@ -144,7 +158,14 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
           <AmountInput
             label={selectedSellCurrency === quote ? "Amount" : "Total"}
             amount={sellAmount}
-            placeholder={selectedSellCurrency === quote ? `Minimun ${parseFloat(exchangeInfoData?.symbols?.[0]?.filters?.[6]?.minNotional)}` : null}
+            placeholder={
+              selectedSellCurrency === quote &&
+              exchangeInfoData?.symbols?.[0]?.filters?.[6]?.minNotional
+                ? `Minimun ${parseFloat(
+                    exchangeInfoData.symbols[0].filters[6].minNotional
+                  )}`
+                : ""
+            }
             onChange={handleSellAmountChange}
             selectedCurrency={selectedSellCurrency}
             showDropdown={showSellDropdown}
@@ -165,9 +186,7 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
             maxCurrency={quote}
           />
 
-          <ActionButton type="sell">
-            Log In
-          </ActionButton>
+          <ActionButton type="sell">Log In</ActionButton>
         </div>
       </div>
     </>
