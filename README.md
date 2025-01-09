@@ -2,7 +2,7 @@
 
 ### 1. 초기 설정 및 환경 구성 (2025.01.06)
 
-- Next.js 13 프로젝트 생성
+- Next.js 15 프로젝트 생성
 - TailwindCSS 설정
   - 색상 변수 설정 (--background, --foreground 등)
 
@@ -15,7 +15,7 @@
 
 ## 사용 기술
 
-- Next.js 13
+- Next.js 15
 - React 19
 - TailwindCSS
 - React Query (@tanstack/react-query)
