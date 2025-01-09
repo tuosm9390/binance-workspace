@@ -8,7 +8,7 @@ const AvailableBalance = ({ availableCurrency, maxLabel, maxCurrency }) => {
         <span className='text-white'>- {availableCurrency}</span>
       </div>
       <div className="flex justify-between">
-        <span>{maxLabel}</span>
+        <span className='underline decoration-dotted'>{maxLabel}</span>
         <span className='text-white'>-- {maxCurrency}</span>
       </div>
     </div>

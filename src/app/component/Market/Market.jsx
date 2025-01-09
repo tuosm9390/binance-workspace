@@ -4,7 +4,7 @@ import {
   getBinanceHotCoinsData,
   getBinanceSymbolTickerPriceData
 } from "../../utils/fetchBinanceData";
-import { useSymbolStore } from "../../hooks/stateManagement";
+import { useMiniTickerStore, useSymbolStore } from "../../hooks/stateManagement";
 import SearchBar from "./SearchBar";
 import FilterTabs from "./FilterTabs";
 import MarketList from "./MarketList";
@@ -15,6 +15,7 @@ const Market = () => {
   const [searchValue, setSearchValue] = useState("");
   const [filter, setFilter] = useState("USDT");
   const { setDefaultSymbol, setBase, setQuote } = useSymbolStore();
+  const { setMiniTicker } = useMiniTickerStore();
 
   const { data: hotCoins } = useQuery({
     queryKey: ["hotCoins"],
@@ -26,6 +27,7 @@ const Market = () => {
     queryFn: async () => {
       var result = await getBinanceSymbolTickerPriceData();
       result = result.filter((item) => item.count != 0)
+      setMiniTicker(result);
       return result;
     },
   });

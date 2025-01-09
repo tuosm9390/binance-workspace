@@ -125,8 +125,8 @@ const useWebSocketConnection = (defaultSymbol) => {
 
           return {
             lastUpdateId: data.u,
-            bids: mergeOrders(oldData.bids, data.b, false),
-            asks: mergeOrders(oldData.asks, data.a, true)
+            bids: mergeOrders(oldData.bids, data.b, false).slice(0, 50),
+            asks: mergeOrders(oldData.asks, data.a, true).slice(0, 50)
           };
         }
       );

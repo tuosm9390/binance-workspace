@@ -1,8 +1,11 @@
-import React from 'react'
 import { useOrderFormStore, useSymbolStore } from '../../hooks/stateManagement';
+import ActionButton from './components/ActionButton';
+import AvailableBalance from './components/AvailableBalance';
+import PriceInput from './components/PriceInput';
+import Slider from './components/Slider';
 import TPSLFields from './TPSLFields';
 
-const LimitTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount, setBuyAmount, sellAmount, setSellAmount }) => {
+const LimitTable = ({ fixedLastPrice, buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount, setBuyAmount, sellAmount, setSellAmount }) => {
   const { orderForm, setOrderForm } = useOrderFormStore();
   const { base, quote } = useSymbolStore();
 
@@ -62,18 +65,13 @@ const LimitTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount,
       <div className="flex gap-4">
         <div className="flex-1">
           {/* Price Input */}
-          <div className="mb-3">
-            <div className="relative flex border border-gray-700 rounded-lg p-2 text-sm font-semibold hover:border-yellow-400 transition-all duration-500">
-              <span className="text-gray-400">Price</span>
-              <input
-                type="text"
-                className="w-full bg-transparent pr-2 text-right outline-none"
-                value={parseNumberValue(buyPrice) || ""}
-                onChange={handleBuyPriceChange}
-              />
-              <span className="text-gray-400">{quote}</span>
-            </div>
-          </div>
+          <PriceInput
+            label="Limit"
+            quoteLabel={quote}
+            onChange={handleBuyPriceChange}
+            isMarket={false}
+            value={parseNumberValue(buyPrice) || fixedLastPrice || ""}
+          />
 
           {/* Amount Input */}
           <div className="mb-3">
@@ -85,19 +83,11 @@ const LimitTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount,
                 value={buyAmount}
                 onChange={handleBuyAmountChange}
               />
-              <span className="text-gray-400">{base}</span>
+              <span className="text-white">{base}</span>
             </div>
           </div>
 
-          {/* Slider */}
-          <div className="mb-3">
-            <input
-              type="range"
-              className="w-full"
-              min="0"
-              max="100"
-            />
-          </div>
+          <Slider />
 
           {/* TP/SL Checkbox */}
           <div className="mb-3">
@@ -113,22 +103,15 @@ const LimitTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount,
             {orderForm && <TPSLFields side="buy" />}
           </div>
 
-          {/* Available Balance */}
-          <div className="flex flex-col text-xs text-gray-400 mb-3">
-            <div className="flex justify-between">
-              <span>Avbl</span>
-              <span className='text-white'>- {quote}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Max Buy</span>
-              <span className='text-white'>-- {base}</span>
-            </div>
-          </div>
+          <AvailableBalance
+            availableCurrency={quote}
+            maxLabel="Max Buy"
+            maxCurrency={base}
+          />
 
-          {/* Buy Button */}
-          <button className="w-full bg-[--plus] hover:bg-[--plus-hover] text-white rounded-lg p-2">
+          <ActionButton type="buy">
             Log In
-          </button>
+          </ActionButton>
         </div>
 
         {/* Sell Form */}
@@ -140,10 +123,10 @@ const LimitTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount,
               <input
                 type="text"
                 className="w-full bg-transparent pr-2 text-right outline-none"
-                value={parseNumberValue(sellPrice) || ""}
+                value={parseNumberValue(sellPrice) || fixedLastPrice || ""}
                 onChange={handleSellPriceChange}
               />
-              <span className="text-gray-400 text-sm">{quote}</span>
+              <span className="text-white0 text-sm">{quote}</span>
             </div>
           </div>
 
@@ -157,19 +140,11 @@ const LimitTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount,
                 value={sellAmount}
                 onChange={handleSellAmountChange}
               />
-              <span className="text-gray-400 text-sm">{base}</span>
+              <span className="text-white text-sm">{base}</span>
             </div>
           </div>
 
-          {/* Slider */}
-          <div className="mb-3">
-            <input
-              type="range"
-              className="w-full"
-              min="0"
-              max="100"
-            />
-          </div>
+          <Slider />
 
           {/* TP/SL Checkbox */}
           <div className="mb-3">
@@ -185,22 +160,15 @@ const LimitTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount,
             {orderForm && <TPSLFields side="sell" />}
           </div>
 
-          {/* Available Balance */}
-          <div className="flex flex-col text-xs text-gray-400 mb-3">
-            <div className="flex justify-between">
-              <span>Avbl</span>
-              <span className='text-white'>- {base}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Max Buy</span>
-              <span className='text-white'>-- {quote}</span>
-            </div>
-          </div>
+          <AvailableBalance
+            availableCurrency={base}
+            maxLabel="Max Sell"
+            maxCurrency={quote}
+          />
 
-          {/* Sell Button */}
-          <button className="w-full bg-[--minus] hover:bg-[--minus-hover] text-white rounded-lg p-2">
+          <ActionButton type="sell">
             Log In
-          </button>
+          </ActionButton>
         </div>
       </div>
     </>

@@ -14,24 +14,25 @@ const BasicTable = () => {
   return (
     <div className="bg-[--background-card] text-white rounded-lg row-start-6 row-end-7 col-start-1 col-end-4">
       {/* Tab Menu */}
-      <div className="flex border-b border-gray-700">
+      <div className="flex gap-4 mb-4 border-b border-gray-700 p-4 pb-0">
         {tabs.map((tab, index) => (
           <button
             key={index}
-            className={`px-4 py-3 text-sm font-medium transition-colors
+            className={`flex flex-col gap-1 items-center text-sm font-semibold hover:text-white transition-colors
               ${activeTab === tab.id
-                ? "text-white border-b-2 border-yellow-400"
-                : "text-gray-400 hover:text-gray-300"
+                ? "text-white"
+                : "text-gray-400"
               }`}
             onClick={() => setActiveTab(tab.id)}
           >
             {tab.label}
+            <div className={`border-b-2 ${activeTab === tab.id ? "border-yellow-400" : "border-transparent"} w-4`}></div>
           </button>
         ))}
       </div>
 
       {/* Content Area */}
-      <div className="p-4 flex items-center justify-center text-gray-400 h-full">
+      <div className="text-sm p-4 flex items-center justify-center text-gray-400 h-full">
         <span>
           <span className="text-yellow-400 hover:text-yellow-300">Log In</span>
           {" or "}

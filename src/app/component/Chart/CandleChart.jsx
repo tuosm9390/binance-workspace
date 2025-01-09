@@ -55,7 +55,7 @@ function CandleChart({ symbol }) {
           takerBuyQuoteAssetVolume,
           unused,
         ]) => ({
-          x: time,
+          x: new Date(time).getTime(),
           y: [open, high, low, close],
         })
       );
@@ -85,11 +85,35 @@ function CandleChart({ symbol }) {
       },
       xaxis: {
         type: "datetime",
+        labels: {
+          style: {
+            colors: "white",
+          },
+          datetimeFormatter: {
+            year: 'yyyy',
+            month: "MMM 'yy",
+            day: 'dd MMM',
+            hour: 'HH:mm',
+            minute: 'HH:mm:ss',
+            second: 'HH:mm:ss',
+          },
+        },
+        tooltip: {
+          enabled: true,
+          formatter: undefined,
+          offsetY: 0,
+        },
       },
       yaxis: {
+        type: "price",
         tooltip: {
           enabled: true,
         },
+        labels: {
+          style: {
+            colors: "white",
+          },
+        }
       },
       tooltip: {
         enabled: true,
@@ -97,6 +121,9 @@ function CandleChart({ symbol }) {
         hideEmptySeries: true,
         fillSeriesColor: false,
         theme: false,
+        x: {
+          format: "yyyy.MM.dd hh:mm",
+        },
       },
     },
   });
@@ -134,7 +161,7 @@ const useWebSocketConnection = (symbol, interval) => {
   // 웹소켓 연결
   const queryClient = useQueryClient();
   useEffect(() => {
-    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${interval}`);
+    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${interval}@+08:00`);
     websocket.onopen = () => {
       return
     };
@@ -154,16 +181,16 @@ const useWebSocketConnection = (symbol, interval) => {
       queryClient.setQueryData(
         ["binanceChartData", interval, symbol],
         (oldData) => {
-          if (!oldData) return [transformedData];
+          if (!oldData) return [transformedData].slice(0, 100);
 
           // 마지막 캔들의 시간과 새로운 데이터의 시간 비교
           const lastCandle = oldData[oldData.length - 1];
           if (lastCandle.x === transformedData.x) {
             // 같은 시간대의 캔들이면 업데이트
-            return [...oldData.slice(0, -1), transformedData];
+            return [...oldData.slice(0, -1), transformedData].slice(0, 100);
           } else {
             // 새로운 시간대의 캔들이면 추가
-            return [...oldData, transformedData];
+            return [...oldData, transformedData].slice(0, 100);
           }
         }
       );

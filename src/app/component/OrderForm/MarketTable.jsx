@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { useOrderFormStore, useSymbolStore } from '../../hooks/stateManagement';
+import { useState, useRef, useEffect } from 'react';
+import { useSymbolStore } from '../../hooks/stateManagement';
 import { getBinanceExchangeInfoData } from '../../utils/fetchBinanceData';
 import { useQuery } from '@tanstack/react-query';
 import PriceInput from './components/PriceInput';
@@ -19,7 +19,7 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
   useEffect(() => {
     if (quote) {
       setSelectedBuyCurrency(quote);
-      setSelectedSellCurrency(quote);
+      setSelectedSellCurrency(base);
     }
   }, [quote]);
 
@@ -91,14 +91,16 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
     }
   };
 
-  return exchangeInfoData && (
+  return (
     <>
       <div className="flex gap-4">
         {/* Buy Form */}
         <div className="flex-1">
           <PriceInput
             label="Price"
+            quoteLabel="Market Price"
             onChange={handleBuyPriceChange}
+            isMarket={true}
           />
 
           <AmountInput
@@ -134,7 +136,9 @@ const MarketTable = ({ buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount
         <div className="flex-1">
           <PriceInput
             label="Price"
+            quoteLabel="Market Price"
             onChange={handleSellPriceChange}
+            isMarket={true}
           />
 
           <AmountInput

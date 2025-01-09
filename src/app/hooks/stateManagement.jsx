@@ -25,3 +25,33 @@ export const useOrderFormStore = create((set) => ({
   orderForm: false,
   setOrderForm: (orderForm) => set({ orderForm }),
 }));
+
+// ticker
+export const useTickerStore = create((set) => ({
+  ticker: {},
+  setTicker: (ticker) => set({ ticker }),
+}));
+
+// depth
+export const useDepthStore = create((set) => ({
+  depth: {},
+  setDepth: (depth) => set({ depth }),
+}));
+
+// kline
+export const useKlineStore = create((set) => ({
+  kline: {},
+  setKline: (kline) => set({ kline }),
+}));
+
+// miniTicker
+export const useMiniTickerStore = create((set) => ({
+  miniTicker: [],
+  setMiniTicker: (miniTicker) => set({ miniTicker }),
+}));
+
+// aggTrade
+export const useAggTradeStore = create((set) => ({
+  aggTrade: {},
+  setAggTrade: (aggTrade) => set({ aggTrade }),
+}));
