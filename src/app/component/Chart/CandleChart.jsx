@@ -161,12 +161,12 @@ const useWebSocketConnection = (symbol, interval) => {
   // 웹소켓 연결
   const queryClient = useQueryClient();
   useEffect(() => {
-    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${interval}@+08:00`);
+    const websocket = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${symbol.toLowerCase()}@kline_${interval}`);
     websocket.onopen = () => {
       return
     };
     websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+      const data = JSON.parse(event.data)?.data;
       // WebSocket 데이터를 chart 형식으로 변환
       const transformedData = {
         x: data.k.t,  // Kline open time

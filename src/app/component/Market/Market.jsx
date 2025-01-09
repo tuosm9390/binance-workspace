@@ -87,10 +87,10 @@ const useWebSocketConnection = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/!miniTicker@arr@3000ms`);
+    const websocket = new WebSocket(`wss://stream.binance.com:9443/stream?streams=!miniTicker@arr@3000ms`);
 
     websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+      const data = JSON.parse(event.data)?.data;
       data.forEach(item => {
         const transformedData = {
           "symbol": item.s,

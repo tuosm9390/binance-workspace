@@ -56,6 +56,7 @@
 - OrderForm - stop limit 컴포넌트 추가, slide 수정
 - NaN 에러 처리
 - tailwind-scrollbar-hide 플러그인 배포 환경에서 사용 불가 문제 해결
+- web socket 원시 스트림 -> 결합 스트림 (원시 스트림은 24시간 후 연결 종료)
 
 ##### 참고
 

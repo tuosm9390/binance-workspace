@@ -77,12 +77,12 @@ const useWebSocketConnection = (defaultSymbol) => {
   // 웹소켓 연결
   const queryClient = useQueryClient();
   useEffect(() => {
-    const websocket = new WebSocket(`wss://stream.binance.com:9443/ws/${defaultSymbol.toLowerCase()}@depth`);
+    const websocket = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${defaultSymbol.toLowerCase()}@depth@1000ms`);
     websocket.onopen = () => {
       return
     };
     websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+      const data = JSON.parse(event.data)?.data;
       // 수량이 0인 주문 필터링
       const filterZeroQuantity = (orders) =>
         orders?.filter(([_, quantity]) => parseFloat(quantity) > 0);
@@ -98,8 +98,8 @@ const useWebSocketConnection = (defaultSymbol) => {
 
       const transformedData = {
         lastUpdateId: data.u,
-        bids: sortOrders(filterZeroQuantity(data.b), false),
-        asks: sortOrders(filterZeroQuantity(data.a), true)
+        bids: sortOrders(filterZeroQuantity(data.b), false).slice(0, 50),
+        asks: sortOrders(filterZeroQuantity(data.a), true).slice(0, 50)
       };
 
       queryClient.setQueryData(
@@ -125,8 +125,8 @@ const useWebSocketConnection = (defaultSymbol) => {
 
           return {
             lastUpdateId: data.u,
-            bids: mergeOrders(oldData.bids, data.b, false).slice(0, 50),
-            asks: mergeOrders(oldData.asks, data.a, true).slice(0, 50)
+            bids: mergeOrders(oldData.bids, data.b, false),
+            asks: mergeOrders(oldData.asks, data.a, true)
           };
         }
       );
