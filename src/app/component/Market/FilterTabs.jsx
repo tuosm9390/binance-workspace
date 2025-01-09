@@ -1,6 +1,6 @@
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
-const FILTER_ITEMS = ["USDT", "FDUSDT", "USDC", "TUSD", "BNB", "BTC", "ALTS", "FIAT"];
+const FILTER_ITEMS = ["USDT", "FDUSD", "USDC", "TUSD", "BNB", "BTC", "ALTS", "FIAT"];
 
 const FilterTabs = ({ filter, setFilter }) => {
   const getFilterItemStyles = (isActive) => `
