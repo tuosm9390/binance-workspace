@@ -1,6 +1,8 @@
 # [Binance Project](https://binance-workspace.vercel.app/en/trade/BTCUSDT)
 
-### 1. 초기 설정 및 환경 구성 (2025.01.06)
+## 초기설정
+
+### 1. Tailwind 설정 및 환경 구성 (2025.01.06)
 
 - Next.js 15 프로젝트 생성
 - TailwindCSS 설정
@@ -11,6 +13,8 @@
 - React Query 설정
   - QueryClient 구성
   - ReactQueryDevtools 추가
+- Recoil 설정
+  - RecoilRoot 구성
 
 ## 사용 기술
 
@@ -22,7 +26,7 @@
 - Zustand (Recoil 대체)
 - Binance Web Socket API
 
-## 진행 상황
+## 진행 과정
 
 ### 2025.01.06
 
@@ -41,8 +45,7 @@
 
 ### 2025.01.08
 
-- Recoil 사용하려고 했으나 버전 충돌때문인지 내부오류가 계속 발생하여
-  상태관리는 zustand 라이브러리를 사용하였습니다.
+- Recoil 사용하려고 했으나 버전 충돌때문인지 내부오류가 계속 발생하여 상태관리는 zustand 라이브러리를 사용
 - 기존 REST API 데이터 호출 방식에서 웹소켓을 통한 실시간 정보 호출 방식으로 변경(차트, 오더북, 트레이드, 마켓, 티커)
 - 숫자 단위 수정
 - web socket 함수 분리
