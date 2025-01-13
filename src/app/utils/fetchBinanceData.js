@@ -53,3 +53,12 @@ export const getBinanceExchangeInfoData = async (symbol) => {
 
   return response.data;
 };
+
+export const fetchAbnormalTradingNotices = async () => {
+  const url = `https://www.binance.com/bapi/composite/v1/public/marketing/indicator/abnormal-trading-notice/pageList?pageSize=50`;
+  var response = await axios.get(url);
+
+  response.data.data = response.data.data.reverse()
+
+  return response.data.data;
+};

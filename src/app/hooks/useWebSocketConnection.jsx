@@ -5,7 +5,7 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
   // 웹소켓 연결
   const queryClient = useQueryClient();
   useEffect(() => {
-    const websocket = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${defaultSymbol.toLowerCase()}@aggTrade/${defaultSymbol.toLowerCase()}@kline_${interval}/${defaultSymbol.toLowerCase()}@depth@1000ms/${defaultSymbol.toLowerCase()}@ticker/!miniTicker@arr@3000ms`);
+    const websocket = new WebSocket(`wss://stream.binance.com/stream?streams=${defaultSymbol.toLowerCase()}@aggTrade/${defaultSymbol.toLowerCase()}@kline_${interval}/${defaultSymbol.toLowerCase()}@depth@1000ms/${defaultSymbol.toLowerCase()}@ticker/!miniTicker@arr@3000ms`);
     websocket.onopen = () => {
       return
     };
@@ -76,8 +76,8 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
 
         const transformedData = {
           lastUpdateId: data.u,
-          bids: sortOrders(filterZeroQuantity(data.b), false).slice(0, 50),
-          asks: sortOrders(filterZeroQuantity(data.a), true).slice(0, 50)
+          bids: sortOrders(filterZeroQuantity(data.b), false).slice(0, 30),
+          asks: sortOrders(filterZeroQuantity(data.a), true).slice(0, 30)
         };
 
         queryClient.setQueryData(
@@ -160,6 +160,31 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
           );
         });
       }
+    };
+
+    return () => {
+      websocket.close();
+    };
+  }, [queryClient]);
+};
+
+export const useWebSocketAbnormalTradingNoticesConnection = () => {
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const websocket = new WebSocket(`wss://bstream.binance.com:9443/stream?streams=abnormaltradingnotices`);
+    websocket.onopen = () => {
+      return
+    };
+    websocket.onmessage = (event) => {
+      const { stream, data } = JSON.parse(event.data);
+
+      queryClient.setQueryData(
+        ["abnormalTradingNotices"],
+        (oldData) => {
+          if (!oldData) return [data];
+          return [data, ...oldData];
+        }
+      );
     };
 
     return () => {

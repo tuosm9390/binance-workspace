@@ -1,5 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getBinanceOrderBookData } from "../../utils/fetchBinanceData";
 import OrderBookRow from "./OrderBookRow";
 import CurrentPrice from "./CurrentPrice";

@@ -1,7 +1,7 @@
 import { getBinanceTradesData } from "../../utils/fetchBinanceData";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useOrderFormStore, usePriceStore, useSymbolStore } from "../../hooks/stateManagement";
-import { formatNumber, tradeFormatNumber } from "../../utils/formatNumber";
+import { tradeFormatNumber } from "../../utils/formatNumber";
 import { useEffect, useState } from "react";
 import TabButton from "./components/TabButton";
 
@@ -37,7 +37,8 @@ const Trades = () => {
             <div className="text-left">price ({quote})</div>
             <div className="text-right">Amount ({base})</div>
             <div className="text-right">Time</div>
-          </div><div className={`flex-1 overflow-y-auto pr-3 gap-1 pl-4 ${orderForm ? "max-h-[415px]" : "max-h-[240px]"}`}>
+          </div>
+          <div className={`flex-1 overflow-y-auto pr-3 pl-4 ${orderForm ? "max-h-[415px]" : "max-h-[240px]"}`}>
             {trades?.map((trade, index) => (
               <div key={index} className="grid grid-cols-[3fr_2fr_2fr] text-xs">
                 <div
