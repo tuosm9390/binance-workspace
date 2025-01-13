@@ -47,6 +47,7 @@
 
 - Recoil 사용하려고 했으나 버전 충돌때문인지 내부오류가 계속 발생하여 상태관리는 zustand 라이브러리를 사용
 - 기존 REST API 데이터 호출 방식에서 웹소켓을 통한 실시간 정보 호출 방식으로 변경(차트, 오더북, 트레이드, 마켓, 티커)
+  - (참고)https://velog.io/@kangactor123/React-Query-with-WebSocket
 - 숫자 단위 수정
 - web socket 함수 분리
 - 재사용 컴포넌트 분리
@@ -60,7 +61,3 @@
 - NaN 에러 처리
 - tailwind-scrollbar-hide 플러그인 배포 환경에서 사용 불가 문제 해결
 - web socket 원시 스트림 -> 결합 스트림 (원시 스트림은 24시간 후 연결 종료)
-
-##### 참고
-
-https://velog.io/@kangactor123/React-Query-with-WebSocket
