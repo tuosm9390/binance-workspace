@@ -14,12 +14,7 @@ const OrderBook = () => {
   const { data: depth } = useQuery({
     queryKey: ["depth", defaultSymbol],
     queryFn: () => getBinanceOrderBookData(defaultSymbol),
-    select: (data) => ({
-      ...data,
-    })
   });
-
-  useWebSocketConnection(defaultSymbol);
 
   return (
     <div className="bg-[--background-card] text-white py-4 flex flex-col rounded-lg row-start-2 row-end-6 w-full">
@@ -71,71 +66,6 @@ const OrderBook = () => {
       )}
     </div>
   );
-};
-
-const useWebSocketConnection = (defaultSymbol) => {
-  // 웹소켓 연결
-  const queryClient = useQueryClient();
-  useEffect(() => {
-    const websocket = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${defaultSymbol.toLowerCase()}@depth@1000ms`);
-    websocket.onopen = () => {
-      return
-    };
-    websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data)?.data;
-      // 수량이 0인 주문 필터링
-      const filterZeroQuantity = (orders) =>
-        orders?.filter(([_, quantity]) => parseFloat(quantity) > 0);
-
-      // 가격 기준으로 정렬
-      const sortOrders = (orders, isAsks) => {
-        return orders.sort((a, b) => {
-          const priceA = parseFloat(a[0]);
-          const priceB = parseFloat(b[0]);
-          return isAsks ? priceA - priceB : priceB - priceA;
-        });
-      };
-
-      const transformedData = {
-        lastUpdateId: data.u,
-        bids: sortOrders(filterZeroQuantity(data.b), false).slice(0, 50),
-        asks: sortOrders(filterZeroQuantity(data.a), true).slice(0, 50)
-      };
-
-      queryClient.setQueryData(
-        ["depth", defaultSymbol],
-        (oldData) => {
-          if (!oldData) return transformedData;
-
-          const mergeOrders = (existingOrders, newOrders, isAsks) => {
-            const orderMap = new Map(existingOrders?.map(order => [order[0], order[1]]) || []);
-            newOrders?.forEach(([price, quantity]) => {
-              if (parseFloat(quantity) > 0) {
-                orderMap.set(price, quantity);
-              } else {
-                orderMap.delete(price);
-              }
-            });
-            return Array.from(orderMap.entries()).sort((a, b) => {
-              const priceA = parseFloat(a[0]);
-              const priceB = parseFloat(b[0]);
-              return isAsks ? priceA - priceB : priceB - priceA;
-            });
-          };
-
-          return {
-            lastUpdateId: data.u,
-            bids: mergeOrders(oldData.bids, data.b, false),
-            asks: mergeOrders(oldData.asks, data.a, true)
-          };
-        }
-      );
-    };
-
-    return () => {
-      websocket.close();
-    };
-  }, [queryClient, defaultSymbol]);
 };
 
 export default OrderBook;

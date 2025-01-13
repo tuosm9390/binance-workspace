@@ -19,8 +19,6 @@ const Trades = () => {
     },
   });
 
-  useWebSocketConnection(defaultSymbol);
-
   useEffect(() => {
     setLastPrice(parseFloat(trades?.[0]?.price));
     setIsBuyMaker(trades?.[0]?.isBuyerMaker);
@@ -76,46 +74,6 @@ const Trades = () => {
       )}
     </div>
   );
-};
-
-const useWebSocketConnection = (defaultSymbol) => {
-  // 웹소켓 연결
-  const queryClient = useQueryClient();
-  useEffect(() => {
-    const websocket = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${defaultSymbol.toLowerCase()}@aggTrade`);
-    websocket.onopen = () => {
-      return
-    };
-    websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data)?.data;
-      // WebSocket 데이터를 trades 형식으로 변환
-      const transformedData = {
-        id: data.t,
-        isBestMatch: data.M,
-        isBuyerMaker: data.m,
-        price: data.p,
-        qty: data.q,
-        quoteQty: (parseFloat(data.p) * parseFloat(data.q)).toString(),
-        time: data.T
-      };
-
-      // setQueriesData를 setQueryData로 변경
-      // setQueriesData: 부분적으로 일치하는 모든 쿼리에 영향
-      // setQueryData: 정확히 일치하는 쿼리에만 영향
-      queryClient.setQueryData(
-        ["trades", defaultSymbol],
-        (oldData) => {
-          // oldData가 없거나 배열이 아닌 경우 새 배열 생성
-          const currentTrades = Array.isArray(oldData) ? oldData : [];
-          return [transformedData, ...currentTrades].slice(0, 50); // 최대 50개로 제한
-        },
-      );
-    };
-
-    return () => {
-      websocket.close();
-    };
-  }, [queryClient]);
 };
 
 export default Trades;

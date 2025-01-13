@@ -43,8 +43,6 @@ const Market = () => {
     return symbol.replace(quote, "");
   };
 
-  useWebSocketConnection();
-
   return (
     <div className="bg-[--background-card] text-white items-center flex flex-col rounded-lg row-start-1 row-end-3">
       <SearchBar
@@ -81,45 +79,6 @@ const Market = () => {
       )}
     </div>
   );
-};
-
-const useWebSocketConnection = () => {
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const websocket = new WebSocket(`wss://stream.binance.com:9443/stream?streams=!miniTicker@arr@3000ms`);
-
-    websocket.onmessage = (event) => {
-      const data = JSON.parse(event.data)?.data;
-      data.forEach(item => {
-        const transformedData = {
-          "symbol": item.s,
-          "openPrice": parseFloat(item.o),
-          "lastPrice": parseFloat(item.c),
-          "count": item.n
-        };
-
-        queryClient.setQueryData(
-          ["allTickerPriceData"],
-          (oldData) => {
-            if (!oldData) return oldData;
-            return oldData.map(coin => {
-              if (coin.symbol === transformedData.symbol) {
-                return {
-                  ...coin,
-                  lastPrice: transformedData.lastPrice,
-                  priceChangePercent: ((transformedData.lastPrice - transformedData.openPrice) / transformedData.openPrice) * 100,
-                };
-              }
-              return coin;
-            });
-          }
-        );
-      });
-    };
-
-    return () => websocket.close();
-  }, [queryClient]);
 };
 
 export default Market;
