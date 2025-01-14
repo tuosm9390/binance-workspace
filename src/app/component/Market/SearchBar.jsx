@@ -9,7 +9,7 @@ const SearchBar = ({ onFocus, onBlur, searchValue, setSearchValue }) => {
           type="text"
           placeholder="Search"
           className="w-full bg-transparent py-1 text-white outline-none"
-          onFocus={!searchValue && onFocus}
+          onFocus={!searchValue ? onFocus : undefined}
           onBlur={onBlur}
           value={searchValue}
           onChange={(e) => {

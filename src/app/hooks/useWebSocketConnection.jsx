@@ -1,15 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
   // 웹소켓 연결
   const queryClient = useQueryClient();
-  useEffect(() => {
-    const websocket = new WebSocket(`wss://stream.binance.com/stream?streams=${defaultSymbol.toLowerCase()}@aggTrade/${defaultSymbol.toLowerCase()}@kline_${interval}/${defaultSymbol.toLowerCase()}@depth@1000ms/${defaultSymbol.toLowerCase()}@ticker/!miniTicker@arr@3000ms`);
-    websocket.onopen = () => {
-      return
-    };
-    websocket.onmessage = (event) => {
+
+  // `onMessage` 핸들러를 useCallback으로 메모이제이션
+  const handleMessage = useCallback(
+    (event) => {
       const { stream, data } = JSON.parse(event.data);
       // stream 종류에 따라 데이터 변환 및 쿼리 업데이트
       if (stream.includes("aggTrade")) {
@@ -160,22 +158,35 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
           );
         });
       }
+    },
+    [queryClient]
+  );
+
+  useEffect(() => {
+    const websocket = new WebSocket(`wss://stream.binance.com/stream?streams=${defaultSymbol.toLowerCase()}@aggTrade/${defaultSymbol.toLowerCase()}@kline_${interval}/${defaultSymbol.toLowerCase()}@depth@1000ms/${defaultSymbol.toLowerCase()}@ticker/!miniTicker@arr@3000ms`);
+    websocket.onopen = () => {
+      return
     };
+    websocket.onmessage = handleMessage;
 
     return () => {
       websocket.close();
     };
   }, [queryClient]);
+
+  //   return () => {
+  //     websocket.close();
+  //     console.log("WebSocket disconnected");
+  //   };
+  // }, [handleMessage]); // handleMessage를 의존성으로 추가
 };
 
 export const useWebSocketAbnormalTradingNoticesConnection = () => {
   const queryClient = useQueryClient();
-  useEffect(() => {
-    const websocket = new WebSocket(`wss://bstream.binance.com:9443/stream?streams=abnormaltradingnotices`);
-    websocket.onopen = () => {
-      return
-    };
-    websocket.onmessage = (event) => {
+
+  // `onMessage` 핸들러를 useCallback으로 메모이제이션
+  const handleMessage = useCallback(
+    (event) => {
       const { stream, data } = JSON.parse(event.data);
 
       queryClient.setQueryData(
@@ -185,10 +196,25 @@ export const useWebSocketAbnormalTradingNoticesConnection = () => {
           return [data, ...oldData];
         }
       );
+    },
+    [queryClient]
+  );
+
+  useEffect(() => {
+    const websocket = new WebSocket(`wss://bstream.binance.com:9443/stream?streams=abnormaltradingnotices`);
+
+    websocket.onopen = () => {
+      // WebSocket 연결이 열렸을 때 실행
+      console.log("WebSocket connected");
     };
+
+    websocket.onmessage = handleMessage;
 
     return () => {
       websocket.close();
+      console.log("WebSocket disconnected");
     };
-  }, [queryClient]);
+  }, [handleMessage]); // handleMessage를 의존성으로 추가
+
+  // 이 훅은 값이 아닌 WebSocket 연결을 관리하므로 반환값이 필요하지 않습니다.
 };
