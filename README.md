@@ -67,3 +67,8 @@
 - 각 컴포넌트 별 socket 연결 구성을 하나의 hook으로 관리 -> ./src/app/hooks/useWebSocketConnection.jsx
 - stream key 값에 따라 queryKey를 매핑하여 queryData update
 - Top Movers 작업, 바이낸스에서 svg아이콘 추출해 신고가/신저가 등 각 상태별 아이콘 추가
+
+### 2025.01.14
+
+- web socket useCallBack 함수로 수정
+- market activity 문구 및 이미지 수정
