@@ -1,28 +1,29 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+'use client'
+
+import { useQuery } from "@tanstack/react-query";
 import { getBinanceProductBySymbolData, getBinanceSymbolTickerPriceData } from "../../utils/fetchBinanceData";
 import { AiFillStar } from "react-icons/ai";
 import { useSymbolStore } from "../../hooks/stateManagement";
-import { useEffect } from "react";
 
 const Tag = ({ text, className }) => (
   <span className={`text-xs ${className}`}>{text}</span>
 );
 
-const PriceDisplay = ({ symbol }) => {
+const PriceDisplay = () => {
   const { defaultSymbol, base } = useSymbolStore()
 
   const { data: getBinanceSymbolTickerPrice } = useQuery({
-    queryKey: ["getBinanceSymbolTickerPriceData", symbol],
+    queryKey: ["getBinanceSymbolTickerPriceData", defaultSymbol],
     queryFn: async () => {
-      const result = await getBinanceSymbolTickerPriceData(symbol);
+      const result = await getBinanceSymbolTickerPriceData(defaultSymbol);
       return result;
     },
   });
 
   const { data: binanceProductBySymbol } = useQuery({
-    queryKey: ["binanceProductBySymbol", symbol],
+    queryKey: ["binanceProductBySymbol", defaultSymbol],
     queryFn: async () => {
-      const result = await getBinanceProductBySymbolData(symbol);
+      const result = await getBinanceProductBySymbolData(defaultSymbol);
       return result?.data;
     },
   });

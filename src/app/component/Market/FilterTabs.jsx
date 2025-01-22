@@ -1,4 +1,3 @@
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import ScrollButton from "./ScrollButton";
 
 const FILTER_ITEMS = ["USDT", "FDUSDT", "USDC", "TUSD", "BNB", "BTC", "ALTS", "FIAT"];

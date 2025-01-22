@@ -72,3 +72,8 @@
 
 - web socket useCallBack 함수로 수정
 - market activity 문구 및 이미지 수정
+
+### 2025.01.22
+- Layout -> Server 컴포넌트로 수정
+- title 제거 및 page 컴포넌트에서 title 처리 (버벅임 줄어듦)
+- 불필요한 패키지 및 props 제거

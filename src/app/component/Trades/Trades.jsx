@@ -1,3 +1,5 @@
+'use client'
+
 import { getBinanceTradesData } from "../../utils/fetchBinanceData";
 import { useQuery } from "@tanstack/react-query";
 import { useOrderFormStore, usePriceStore, useSymbolStore } from "../../hooks/stateManagement";
@@ -22,7 +24,7 @@ const Trades = () => {
   useEffect(() => {
     setLastPrice(parseFloat(trades?.[0]?.price));
     setIsBuyMaker(trades?.[0]?.isBuyerMaker);
-  }, [trades])
+  }, [trades, defaultSymbol])
 
   return (
     <div className="bg-[--background-card] text-white rounded-lg row-start-3 row-end-5 col-start-3 flex flex-col">

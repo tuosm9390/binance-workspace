@@ -1,12 +1,10 @@
-import { useOrderFormStore, useSymbolStore } from '../../hooks/stateManagement';
+import { useSymbolStore } from '../../hooks/stateManagement';
 import ActionButton from './components/ActionButton';
 import AvailableBalance from './components/AvailableBalance';
 import PriceInput from './components/PriceInput';
 import Slider from './components/Slider';
-import TPSLFields from './TPSLFields';
 
 const StopLimitTable = ({ fixedLastPrice, buyPrice, setBuyPrice, sellPrice, setSellPrice, buyAmount, setBuyAmount, sellAmount, setSellAmount }) => {
-  const { orderForm, setOrderForm } = useOrderFormStore();
   const { base, quote } = useSymbolStore();
 
   // 문자열에서 콤마를 제거하고 숫자로 변환하는 함수

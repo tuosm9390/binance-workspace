@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useRef, useEffect } from 'react';
 import { useSymbolStore } from '../../hooks/stateManagement';
 import { getBinanceExchangeInfoData } from '../../utils/fetchBinanceData';

@@ -1,4 +1,7 @@
+'use cache'
+
 import axios from "axios";
+import { cache } from "react";
 
 export const getBinanceChartData = async (interval, symbol) => {
   const params = new URLSearchParams();
@@ -7,14 +10,14 @@ export const getBinanceChartData = async (interval, symbol) => {
   if (symbol) params.append("symbol", symbol);
 
   const url = `https://api.binance.com/api/v3/uiKlines?${params.toString()}&limit=100`;
-  const response = await axios.get(url);
+  const response = await axios.get(url, cache);
 
   return response.data;
 };
 
 export const getBinanceSymbolTickerPriceData = async (symbol) => {
   const url = `https://api.binance.com/api/v3/ticker/24hr${symbol ? `?symbol=${symbol}` : ""}`;
-  const response = await axios.get(url);
+  const response = await axios.get(url, cache);
 
   return response.data;
 };
@@ -28,14 +31,14 @@ export const getBinanceHotCoinsData = async () => {
 
 export const getBinanceOrderBookData = async (symbol) => {
   const url = `https://www.binance.com/api/v3/depth?symbol=${symbol}&limit=1000`;
-  const response = await axios.get(url);
+  const response = await axios.get(url, cache);
 
   return response.data;
 };
 
 export const getBinanceTradesData = async (symbol) => {
   const url = `https://www.binance.com/api/v3/trades?symbol=${symbol}&limit=100`;
-  const response = await axios.get(url);
+  const response = await axios.get(url, cache);
 
   return response.data;
 };

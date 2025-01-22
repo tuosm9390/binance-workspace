@@ -1,4 +1,12 @@
-const TopSearch = ({ hotCoins, allTickerPriceData, handlePairClick }) => {
+import { useQuery } from "@tanstack/react-query";
+import { getBinanceHotCoinsData } from "../../utils/fetchBinanceData";
+
+const TopSearch = ({ allTickerPriceData, handlePairClick }) => {
+  const { data: hotCoins } = useQuery({
+    queryKey: ["hotCoins"],
+    queryFn: getBinanceHotCoinsData,
+  });
+
   return (
     <div className="w-full pl-4">
       <div className="flex flex-col mt-2 text-sm h-[350px] overflow-y-auto">

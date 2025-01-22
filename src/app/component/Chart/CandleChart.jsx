@@ -1,43 +1,29 @@
+'use client'
+
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { getBinanceChartData } from "../../utils/fetchBinanceData";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useSymbolStore } from "../../hooks/stateManagement";
 
 const Chart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-function CandleChart({ symbol }) {
+function CandleChart() {
   const [interval, setInterval] = useState("1h");
+  const { defaultSymbol } = useSymbolStore();
 
   // 초기 데이터 호출
   const { data: binanceChartData, isLoading } = useQuery({
-    queryKey: ["binanceChartData", interval, symbol],
+    queryKey: ["binanceChartData", interval, defaultSymbol],
     queryFn: async () => {
-      const result = await getBinanceChartData(interval, symbol);
+      const result = await getBinanceChartData(interval, defaultSymbol);
       // api 호출 실패 시
       if (!result || result.length === 0) {
         console.warn("No data returned or data is empty");
         throw new Error("Network response was not ok");
       }
-
-      // 데이터 형식
-      // [
-      //   [
-      //     1499040000000,      // Kline open time
-      //     "0.01634790",       // Open price
-      //     "0.80000000",       // High price
-      //     "0.01575800",       // Low price
-      //     "0.01577100",       // Close price
-      //     "148976.11427815",  // Volume
-      //     1499644799999,      // Kline Close time
-      //     "2434.19055334",    // Quote asset volume
-      //     308,                // Number of trades
-      //     "1756.87402397",    // Taker buy base asset volume
-      //     "28.46694368",      // Taker buy quote asset volume
-      //     "0"                 // Unused field, ignore.
-      //   ]
-      // ]
 
       // 데이터 형식 변환
       const prices = result.map(
@@ -63,12 +49,13 @@ function CandleChart({ symbol }) {
       // api 호출 성공 시
       return prices;
     },
+    enabled: !!defaultSymbol
   });
 
   const [state, setState] = useState({
     series: [
       {
-        data: binanceChartData,
+        data: binanceChartData && binanceChartData,
       },
     ],
     options: {
@@ -134,7 +121,7 @@ function CandleChart({ symbol }) {
         ...state,
         series: [
           {
-            data: binanceChartData,
+            data: binanceChartData && binanceChartData,
           },
         ],
       });
@@ -144,12 +131,14 @@ function CandleChart({ symbol }) {
   return (
     <div className="bg-[--background-card] text-white rounded-lg row-start-2 row-end-4">
       <div id="chart">
-        <Chart
-          options={state.options}
-          series={state.series}
-          type="candlestick"
-          height={500}
-        />
+        {binanceChartData && (
+          <Chart
+            options={state?.options}
+            series={state?.series}
+            type="candlestick"
+            height={500}
+          />
+        )}
       </div>
     </div>
   );

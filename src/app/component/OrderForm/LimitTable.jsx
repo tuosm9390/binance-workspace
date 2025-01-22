@@ -1,3 +1,5 @@
+'use client'
+
 import { useOrderFormStore, useSymbolStore } from '../../hooks/stateManagement';
 import ActionButton from './components/ActionButton';
 import AvailableBalance from './components/AvailableBalance';

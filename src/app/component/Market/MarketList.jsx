@@ -1,4 +1,22 @@
-const MarketList = ({ allTickerPriceData, filter, searchValue, handlePairClick }) => {
+import { useQuery } from "@tanstack/react-query";
+import { getBinanceSymbolTickerPriceData } from "../../utils/fetchBinanceData";
+import { useMiniTickerStore, useSymbolStore } from "../../hooks/stateManagement";
+
+const MarketList = ({ filter, searchValue, handlePairClick }) => {
+  const { setMiniTicker } = useMiniTickerStore();
+  const { defaultSymbol } = useSymbolStore()
+
+  const { data: allTickerPriceData } = useQuery({
+    queryKey: ["allTickerPriceData"],
+    queryFn: async () => {
+      var result = await getBinanceSymbolTickerPriceData();
+      result = result.filter((item) => item.count != 0)
+      setMiniTicker(result);
+      return result;
+    },
+    enabled: !!defaultSymbol
+  });
+
   return (
     <div className="w-full">
       <div className="flex flex-col mt-2 text-sm h-[320px] overflow-y-auto overflow-x-hidden">
@@ -16,7 +34,6 @@ const MarketList = ({ allTickerPriceData, filter, searchValue, handlePairClick }
               }
 
               const searchLower = searchValue.toLowerCase();
-              const symbolLower = symbol.toLowerCase();
               const baseQuoteMatch = hasFilter &&
                 (coin.base.toLowerCase().includes(searchLower) ||
                   coin.quote.toLowerCase().includes(searchLower));

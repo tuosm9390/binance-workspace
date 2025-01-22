@@ -1,3 +1,5 @@
+'use client'
+
 import { useMiniTickerStore } from "../../hooks/stateManagement"
 
 const Footer = () => {

@@ -1,8 +1,8 @@
 import React from "react";
 
-const MenuItem = ({ label, description, className }) => {
+const MenuItem = ({ label, description, className, onClick }) => {
   return (
-    <div className={className}>
+    <div className={className} onClick={onClick}>
       <div>
         <div className="font-semibold text-white">{label}</div>
         {description && (

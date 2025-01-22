@@ -1,3 +1,5 @@
+'use client'
+
 import { useQuery } from "@tanstack/react-query";
 import { getBinanceOrderBookData } from "../../utils/fetchBinanceData";
 import OrderBookRow from "./OrderBookRow";

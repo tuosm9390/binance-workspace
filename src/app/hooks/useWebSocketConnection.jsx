@@ -1,16 +1,18 @@
+'use client'
+
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 
 export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
   // 웹소켓 연결
   const queryClient = useQueryClient();
 
   // `onMessage` 핸들러를 useCallback으로 메모이제이션
-  const handleMessage = useCallback(
+  const handleMessage = (
     (event) => {
       const { stream, data } = JSON.parse(event.data);
       // stream 종류에 따라 데이터 변환 및 쿼리 업데이트
-      if (stream.includes("aggTrade")) {
+      if (stream.includes("@aggTrade")) {
         const transformedData = {
           id: data.t,
           isBestMatch: data.M,
@@ -28,11 +30,11 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
           ["trades", defaultSymbol],
           (oldData) => {
             // oldData가 없거나 배열이 아닌 경우 새 배열 생성
-            const currentTrades = Array.isArray(oldData) ? oldData : [];
+            const currentTrades = Array.isArray(oldData) ? oldData.slice(0, 50) : [];
             return [transformedData, ...currentTrades].slice(0, 50); // 최대 50개로 제한
           },
         );
-      } else if (stream.includes("kline_1h")) {
+      } else if (stream.includes("@kline_1h")) {
         const transformedData = {
           x: data.k.t,  // Kline open time
           y: [
@@ -59,7 +61,7 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
             }
           }
         );
-      } else if (stream.includes("depth")) {
+      } else if (stream.includes("@depth")) {
         const filterZeroQuantity = (orders) =>
           orders?.filter(([_, quantity]) => parseFloat(quantity) > 0);
 
@@ -74,8 +76,8 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
 
         const transformedData = {
           lastUpdateId: data.u,
-          bids: sortOrders(filterZeroQuantity(data.b), false).slice(0, 30),
-          asks: sortOrders(filterZeroQuantity(data.a), true).slice(0, 30)
+          bids: sortOrders(filterZeroQuantity(data.b), false),
+          asks: sortOrders(filterZeroQuantity(data.a), true)
         };
 
         queryClient.setQueryData(
@@ -101,12 +103,12 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
 
             return {
               lastUpdateId: data.u,
-              bids: mergeOrders(oldData.bids, data.b, false),
-              asks: mergeOrders(oldData.asks, data.a, true)
+              bids: mergeOrders(oldData.bids, data.b, false).slice(0, 30),
+              asks: mergeOrders(oldData.asks, data.a, true).slice(0, 30)
             };
           }
         );
-      } else if (stream.includes("ticker")) {
+      } else if (stream.includes("@ticker")) {
         const transformedData = {
           "symbol": data.s,
           "priceChange": data.p,
@@ -131,7 +133,7 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
             return transformedData;
           }
         );
-      } else if (stream.includes("miniTicker")) {
+      } else if (stream.includes("!miniTicker")) {
         data.forEach(item => {
           const transformedData = {
             "symbol": item.s,
@@ -144,8 +146,8 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
             ["allTickerPriceData"],
             (oldData) => {
               if (!oldData) return oldData;
-              return oldData.map(coin => {
-                if (coin.symbol === transformedData.symbol) {
+              return oldData && oldData.map(coin => {
+                if (coin?.symbol === transformedData.symbol) {
                   return {
                     ...coin,
                     lastPrice: transformedData.lastPrice,
@@ -158,34 +160,34 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
           );
         });
       }
-    },
-    [queryClient]
+    }
   );
 
   useEffect(() => {
     const websocket = new WebSocket(`wss://stream.binance.com/stream?streams=${defaultSymbol.toLowerCase()}@aggTrade/${defaultSymbol.toLowerCase()}@kline_${interval}/${defaultSymbol.toLowerCase()}@depth@1000ms/${defaultSymbol.toLowerCase()}@ticker/!miniTicker@arr@3000ms`);
+    websocket.binaryType = "arraybuffer"
+
     websocket.onopen = () => {
       return
     };
+
     websocket.onmessage = handleMessage;
+
+    websocket.onerror = () => {
+      websocket.close();
+    }
 
     return () => {
       websocket.close();
     };
-  }, [queryClient]);
-
-  //   return () => {
-  //     websocket.close();
-  //     console.log("WebSocket disconnected");
-  //   };
-  // }, [handleMessage]); // handleMessage를 의존성으로 추가
+  }, []);
 };
 
 export const useWebSocketAbnormalTradingNoticesConnection = () => {
   const queryClient = useQueryClient();
 
   // `onMessage` 핸들러를 useCallback으로 메모이제이션
-  const handleMessage = useCallback(
+  const handleMessage = (
     (event) => {
       const { stream, data } = JSON.parse(event.data);
 
@@ -196,25 +198,24 @@ export const useWebSocketAbnormalTradingNoticesConnection = () => {
           return [data, ...oldData];
         }
       );
-    },
-    [queryClient]
+    }
   );
 
   useEffect(() => {
     const websocket = new WebSocket(`wss://bstream.binance.com:9443/stream?streams=abnormaltradingnotices`);
 
     websocket.onopen = () => {
-      // WebSocket 연결이 열렸을 때 실행
-      console.log("WebSocket connected");
+      return
     };
 
     websocket.onmessage = handleMessage;
 
+    websocket.onerror = () => {
+      websocket.close();
+    }
+
     return () => {
       websocket.close();
-      console.log("WebSocket disconnected");
     };
-  }, [handleMessage]); // handleMessage를 의존성으로 추가
-
-  // 이 훅은 값이 아닌 WebSocket 연결을 관리하므로 반환값이 필요하지 않습니다.
+  }, []); // handleMessage를 의존성으로 추가
 };

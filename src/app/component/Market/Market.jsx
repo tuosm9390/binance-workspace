@@ -1,10 +1,8 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import {
-  getBinanceHotCoinsData,
-  getBinanceSymbolTickerPriceData
+  getBinanceHotCoinsData
 } from "../../utils/fetchBinanceData";
-import { useMiniTickerStore, useSymbolStore } from "../../hooks/stateManagement";
+import { useSymbolStore } from "../../hooks/stateManagement";
 import SearchBar from "./SearchBar";
 import FilterTabs from "./FilterTabs";
 import MarketList from "./MarketList";
@@ -15,22 +13,6 @@ const Market = () => {
   const [searchValue, setSearchValue] = useState("");
   const [filter, setFilter] = useState("USDT");
   const { setDefaultSymbol, setBase, setQuote } = useSymbolStore();
-  const { setMiniTicker } = useMiniTickerStore();
-
-  const { data: hotCoins } = useQuery({
-    queryKey: ["hotCoins"],
-    queryFn: getBinanceHotCoinsData,
-  });
-
-  const { data: allTickerPriceData } = useQuery({
-    queryKey: ["allTickerPriceData"],
-    queryFn: async () => {
-      var result = await getBinanceSymbolTickerPriceData();
-      result = result.filter((item) => item.count != 0)
-      setMiniTicker(result);
-      return result;
-    },
-  });
 
   const handlePairClick = (pair) => {
     setIsFocused(false);
@@ -64,7 +46,6 @@ const Market = () => {
         <>
           <FilterTabs filter={filter} setFilter={setFilter} />
           <MarketList
-            allTickerPriceData={allTickerPriceData}
             filter={filter}
             searchValue={searchValue}
             handlePairClick={handlePairClick}
@@ -72,7 +53,6 @@ const Market = () => {
         </>
       ) : (
         <TopSearch
-          hotCoins={hotCoins}
           allTickerPriceData={allTickerPriceData}
           handlePairClick={handlePairClick}
         />
