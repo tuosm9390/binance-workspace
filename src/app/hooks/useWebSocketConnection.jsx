@@ -1,11 +1,9 @@
-'use client'
-
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { getQueryClient } from "./useReactQuery";
 
 export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
   // 웹소켓 연결
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient()
 
   // `onMessage` 핸들러를 useCallback으로 메모이제이션
   const handleMessage = (
@@ -184,7 +182,7 @@ export const useWebSocketConnection = (defaultSymbol, interval = "1h") => {
 };
 
 export const useWebSocketAbnormalTradingNoticesConnection = () => {
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
 
   // `onMessage` 핸들러를 useCallback으로 메모이제이션
   const handleMessage = (
