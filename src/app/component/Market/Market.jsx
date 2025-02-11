@@ -1,18 +1,36 @@
 import { useState } from "react";
 import {
-  getBinanceHotCoinsData
+  getBinanceHotCoinsData,
+  getBinanceSymbolTickerPriceData
 } from "../../utils/fetchBinanceData";
-import { useSymbolStore } from "../../hooks/stateManagement";
+import { useMiniTickerStore, useSymbolStore } from "../../hooks/stateManagement";
 import SearchBar from "./SearchBar";
 import FilterTabs from "./FilterTabs";
 import MarketList from "./MarketList";
 import TopSearch from "./TopSearch";
+import { useQuery } from "@tanstack/react-query";
 
 const Market = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [filter, setFilter] = useState("USDT");
   const { setDefaultSymbol, setBase, setQuote } = useSymbolStore();
+  const { setMiniTicker } = useMiniTickerStore();
+
+  const { data: hotCoins } = useQuery({
+    queryKey: ["hotCoins"],
+    queryFn: getBinanceHotCoinsData,
+  });
+
+  const { data: allTickerPriceData } = useQuery({
+    queryKey: ["allTickerPriceData"],
+    queryFn: async () => {
+      var result = await getBinanceSymbolTickerPriceData();
+      result = result.filter((item) => item.count != 0)
+      setMiniTicker(result);
+      return result;
+    },
+  });
 
   const handlePairClick = (pair) => {
     setIsFocused(false);
