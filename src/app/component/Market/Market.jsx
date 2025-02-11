@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   getBinanceHotCoinsData,
   getBinanceSymbolTickerPriceData
@@ -79,4 +79,4 @@ const Market = () => {
   );
 };
 
-export default Market;
+export default React.memo(Market);
