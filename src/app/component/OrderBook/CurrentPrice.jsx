@@ -1,9 +1,14 @@
+import React from "react";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa6";
 
 const CurrentPrice = ({ price, isBuyMaker, dollarPrice }) => {
   return (
     <div className="flex gap-2 font-semibold text-2xl px-4">
-      <div className={`flex items-center gap-1 ${isBuyMaker ? "text-[--plus]" : "text-[--minus]"}`}>
+      <div
+        className={`flex items-center gap-1 ${
+          isBuyMaker ? "text-[--plus]" : "text-[--minus]"
+        }`}
+      >
         {price}
         {isBuyMaker ? <FaArrowUp size={14} /> : <FaArrowDown size={14} />}
       </div>
@@ -16,4 +21,4 @@ const CurrentPrice = ({ price, isBuyMaker, dollarPrice }) => {
   );
 };
 
-export default CurrentPrice; 
+export default React.memo(CurrentPrice);

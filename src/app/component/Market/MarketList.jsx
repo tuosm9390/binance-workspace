@@ -1,21 +1,29 @@
 import { useQuery } from "@tanstack/react-query";
 import { getBinanceSymbolTickerPriceData } from "../../utils/fetchBinanceData";
-import { useMiniTickerStore, useSymbolStore } from "../../hooks/stateManagement";
+import {
+  useMiniTickerStore,
+  useSymbolStore,
+} from "../../hooks/stateManagement";
+import React, { useCallback } from "react";
 
 const MarketList = ({ filter, searchValue, handlePairClick }) => {
   const { setMiniTicker } = useMiniTickerStore();
-  const { defaultSymbol } = useSymbolStore()
+  const { defaultSymbol } = useSymbolStore();
 
   const { data: allTickerPriceData } = useQuery({
     queryKey: ["allTickerPriceData"],
     queryFn: async () => {
       var result = await getBinanceSymbolTickerPriceData();
-      result = result.filter((item) => item.count != 0)
+      result = result.filter((item) => item.count != 0);
       setMiniTicker(result);
       return result;
     },
-    enabled: !!defaultSymbol
+    enabled: !!defaultSymbol,
   });
+
+  const memoizedHandlePairClick = useCallback(handlePairClick, [
+    handlePairClick,
+  ]);
 
   return (
     <div className="w-full">
@@ -29,19 +37,24 @@ const MarketList = ({ filter, searchValue, handlePairClick }) => {
               const hasFilter = lastFourChars.includes(filter);
 
               if (hasFilter) {
-                coin.base = symbol.replace(filter, '');
+                coin.base = symbol.replace(filter, "");
                 coin.quote = filter;
               }
 
               const searchLower = searchValue.toLowerCase();
-              const baseQuoteMatch = hasFilter &&
+              const baseQuoteMatch =
+                hasFilter &&
                 (coin.base.toLowerCase().includes(searchLower) ||
                   coin.quote.toLowerCase().includes(searchLower));
 
-              return hasFilter && (searchValue === '' || baseQuoteMatch);
+              return hasFilter && (searchValue === "" || baseQuoteMatch);
             })
             .map((coin, index) => (
-              <MarketListItem key={index} coin={coin} handlePairClick={handlePairClick} />
+              <MarketListItem
+                key={index}
+                coin={coin}
+                handlePairClick={memoizedHandlePairClick}
+              />
             ))}
       </div>
     </div>
@@ -56,31 +69,42 @@ const MarketListHeader = () => (
   </div>
 );
 
-const MarketListItem = ({ coin, handlePairClick }) => (
+const MarketListItem = React.memo(({ coin, handlePairClick }) => (
   <div
     className="grid grid-cols-[4fr_3fr_2fr] hover:bg-gray-800 py-1 px-4 rounded cursor-pointer"
     onClick={() => handlePairClick(coin)}
   >
     <div className="flex items-center gap-2">
-      <span className="text-white text-xs">
-        {coin.base + "/" + coin.quote}
-      </span>
-      <span className="text-xs bg-gray-800 px-1 rounded-sm">
-        5x
-      </span>
+      <span className="text-white text-xs">{coin.base + "/" + coin.quote}</span>
+      <span className="text-xs bg-gray-800 px-1 rounded-sm">5x</span>
     </div>
 
     <div className="text-right text-xs">
       {parseFloat(coin.lastPrice) < 1
-        ? parseFloat(coin.lastPrice).toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 10 })
-        : parseFloat(coin.lastPrice).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 10 })
-      }
+        ? parseFloat(coin.lastPrice).toLocaleString("en-US", {
+            minimumFractionDigits: 4,
+            maximumFractionDigits: 10,
+          })
+        : parseFloat(coin.lastPrice).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 10,
+          })}
     </div>
 
-    <div className={`text-right text-xs ${parseFloat(coin.priceChangePercent) > 0 ? "text-[--plus]" : "text-[--minus]"}`}>
-      {parseFloat(coin.priceChangePercent).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%
+    <div
+      className={`text-right text-xs ${
+        parseFloat(coin.priceChangePercent) > 0
+          ? "text-[--plus]"
+          : "text-[--minus]"
+      }`}
+    >
+      {parseFloat(coin.priceChangePercent).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}
+      %
     </div>
   </div>
-);
+));
 
-export default MarketList; 
+export default React.memo(MarketList);

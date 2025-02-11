@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getBinanceProductBySymbolData, getBinanceSymbolTickerPriceData } from "../../utils/fetchBinanceData";
 import { AiFillStar } from "react-icons/ai";
 import { useSymbolStore } from "../../hooks/stateManagement";
+import React from "react";
 
 const Tag = ({ text, className }) => (
   <span className={`text-xs ${className}`}>{text}</span>
@@ -178,4 +179,4 @@ const PriceDisplay = () => {
   );
 };
 
-export default PriceDisplay;
+export default React.memo(PriceDisplay);

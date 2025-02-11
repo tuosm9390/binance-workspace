@@ -4,7 +4,7 @@ import { getBinanceTradesData } from "../../utils/fetchBinanceData";
 import { useQuery } from "@tanstack/react-query";
 import { useOrderFormStore, usePriceStore, useSymbolStore } from "../../hooks/stateManagement";
 import { tradeFormatNumber } from "../../utils/formatNumber";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import TabButton from "./components/TabButton";
 
 const Trades = () => {
@@ -79,4 +79,4 @@ const Trades = () => {
   );
 };
 
-export default Trades;
+export default React.memo(Trades);

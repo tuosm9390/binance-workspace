@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from "react";
+import { useState } from "react";
 import {
   getBinanceHotCoinsData
 } from "../../utils/fetchBinanceData";

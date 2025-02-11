@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { getBinanceChartData } from "../../utils/fetchBinanceData";
 import { useQuery } from "@tanstack/react-query";
@@ -49,7 +49,7 @@ function CandleChart() {
       // api 호출 성공 시
       return prices;
     },
-    enabled: !!defaultSymbol
+    enabled: !!defaultSymbol,
   });
 
   const [state, setState] = useState({
@@ -77,12 +77,12 @@ function CandleChart() {
             colors: "white",
           },
           datetimeFormatter: {
-            year: 'yyyy',
+            year: "yyyy",
             month: "MMM 'yy",
-            day: 'dd MMM',
-            hour: 'HH:mm',
-            minute: 'HH:mm:ss',
-            second: 'HH:mm:ss',
+            day: "dd MMM",
+            hour: "HH:mm",
+            minute: "HH:mm:ss",
+            second: "HH:mm:ss",
           },
         },
         tooltip: {
@@ -100,7 +100,7 @@ function CandleChart() {
           style: {
             colors: "white",
           },
-        }
+        },
       },
       tooltip: {
         enabled: true,
@@ -144,4 +144,4 @@ function CandleChart() {
   );
 }
 
-export default CandleChart;
+export default React.memo(CandleChart);
