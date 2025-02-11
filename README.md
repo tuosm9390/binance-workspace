@@ -77,3 +77,7 @@
 - Layout -> Server 컴포넌트로 수정
 - title 제거 및 page 컴포넌트에서 title 처리 (버벅임 줄어듦)
 - 불필요한 패키지 및 props 제거
+
+### 2025.02.12
+- React.memo를 사용하여 불필요한 리렌더링 제거 (화면 버벅임 수정)
+- page에 React Suspense 컴포넌트 추가 (비동기 데이터 페칭을 처리)
